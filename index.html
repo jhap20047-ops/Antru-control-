@@ -2,469 +2,403 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#07080c" />
-  <title>Antru Control</title>
+  <title>Antru Wallet</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <style>
-    :root{
-      --bg:#07080c;--bg2:#0b0d13;--glass:rgba(255,255,255,.035);--glass2:rgba(255,255,255,.06);--line:rgba(255,255,255,.08);
-      --text:#f4f5f9;--muted:#8f96a8;--faint:#5c6376;
-      --violet:#a78bfa;--violet2:#7c5ce7;--cyan:#67e8f9;--green:#34d399;--red:#fb7185;--amber:#fbbf24;
-      --shadow:0 24px 60px rgba(0,0,0,.45);
-    }
+    :root{--bg:#07080c;--glass:rgba(255,255,255,.05);--glass2:rgba(255,255,255,.09);--line:rgba(255,255,255,.09);--text:#f5f6fa;--muted:#9097a9;--violet:#a78bfa;--violet2:#7c5ce7;--green:#34d399;--red:#fb7185;--shadow:0 24px 60px rgba(0,0,0,.5)}
     *{box-sizing:border-box}
-    html,body{margin:0;height:100%}
-    body{background:
-        radial-gradient(900px 500px at 8% -10%,rgba(124,92,231,.22),transparent 60%),
-        radial-gradient(700px 480px at 110% 10%,rgba(103,232,249,.10),transparent 60%),
-        var(--bg);
-      color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+    html,body{margin:0}
+    body{min-height:100vh;color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;
+      background:radial-gradient(900px 520px at 10% -12%,rgba(124,92,231,.26),transparent 60%),radial-gradient(640px 420px at 105% 8%,rgba(103,232,249,.09),transparent 60%),var(--bg)}
     button,input,select,textarea{font:inherit;color:inherit}
     button{cursor:pointer;border:0;background:none}
     button:disabled{opacity:.5;cursor:default}
     ::selection{background:rgba(167,139,250,.35)}
-
-    /* ---------- Login ---------- */
-    .gate{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:18px;background:var(--bg)}
-    .gate.hide{display:none}
-    .gate-box{width:min(420px,100%);padding:34px 28px;border-radius:26px;background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(18px)}
-    .field{width:100%;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:13px 14px;outline:none;transition:.2s}
-    .field:focus{border-color:rgba(167,139,250,.7);box-shadow:0 0 0 4px rgba(167,139,250,.14)}
-    .label{display:block;font-size:11px;letter-spacing:.9px;text-transform:uppercase;color:var(--muted);margin:14px 0 7px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;border-radius:13px;font-weight:700;font-size:13px;transition:.2s;white-space:nowrap}
-    .btn:hover:not(:disabled){transform:translateY(-1px)}
-    .btn-pri{background:linear-gradient(120deg,var(--violet),var(--violet2));color:#120d24;box-shadow:0 10px 26px rgba(124,92,231,.35)}
-    .btn-ok{background:rgba(52,211,153,.14);color:#a7f3d0;border:1px solid rgba(52,211,153,.3)}
-    .btn-bad{background:rgba(251,113,133,.12);color:#fecdd3;border:1px solid rgba(251,113,133,.3)}
-    .btn-ghost{background:var(--glass2);border:1px solid var(--line);color:var(--text)}
-    .btn-block{width:100%}
-    .notice{font-size:12.5px;color:#cbd2e1;background:rgba(255,255,255,.04);border:1px solid var(--line);padding:12px 14px;border-radius:14px}
-    .notice.warn{border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.07);color:#fde68a}
-    .notice.bad{border-color:rgba(251,113,133,.35);background:rgba(251,113,133,.07);color:#fecdd3}
-
-    /* ---------- Shell ---------- */
-    .shell{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
-    .side{position:sticky;top:0;height:100vh;padding:22px 16px;border-right:1px solid var(--line);background:rgba(8,9,14,.7);backdrop-filter:blur(16px);display:flex;flex-direction:column;gap:6px}
-    .brand{display:flex;align-items:center;gap:12px;padding:6px 8px 18px}
-    .logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:22px;font-weight:900;color:#120d24;background:linear-gradient(145deg,#ddd6fe,#8b5cf6);box-shadow:0 10px 30px rgba(139,92,246,.45)}
-    .brand b{display:block;font-size:15px;letter-spacing:.3px}.brand small{color:var(--muted);font-size:11px;letter-spacing:.6px}
-    .nav-btn{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;color:#aab1c2;font-weight:600;text-align:left;transition:.2s}
-    .nav-btn:hover{background:var(--glass2);color:var(--text)}
-    .nav-btn.active{background:linear-gradient(120deg,rgba(167,139,250,.22),rgba(124,92,231,.10));color:#eadfff;box-shadow:inset 0 0 0 1px rgba(167,139,250,.25)}
-    .nav-ico{width:22px;text-align:center;font-size:15px;opacity:.9}
-    .nav-count{margin-left:auto;font-size:11px;background:rgba(251,191,36,.16);color:var(--amber);padding:2px 8px;border-radius:99px}
-    .side-foot{margin-top:auto;padding:14px 10px 0;border-top:1px solid var(--line);font-size:12px;color:var(--muted);word-break:break-all}
-    .main{padding:26px 30px 60px;min-width:0}
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px;flex-wrap:wrap}
-    .topbar h1{font-size:24px;margin:0;letter-spacing:-.4px}.topbar p{margin:4px 0 0;color:var(--muted);font-size:13px}
-    .pill{font-size:11px;letter-spacing:.6px;text-transform:uppercase;padding:7px 11px;border-radius:99px;background:var(--glass2);border:1px solid var(--line);color:#d8d2f4}
-    .mobile-nav{display:none}
-
-    /* ---------- Cards / KPIs ---------- */
-    .card{background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.015));border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:var(--shadow)}
-    .card h3{margin:0 0 14px;font-size:14px;letter-spacing:.2px}
-    .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px}
-    .kpi{position:relative;overflow:hidden}
-    .kpi::after{content:"";position:absolute;right:-40px;top:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.25),transparent 70%)}
-    .kpi .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.9px}
-    .kpi .val{font-size:27px;font-weight:850;letter-spacing:-.6px;margin-top:10px}
-    .kpi .sm{font-size:12px;color:var(--muted);margin-top:6px}
-    .grid-2{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
-    .grid-2b{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-
-    /* Bar chart */
-    .chart{display:flex;align-items:flex-end;gap:12px;height:190px;padding-top:10px}
-    .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:8px}
-    .bar{width:100%;max-width:46px;border-radius:12px 12px 6px 6px;background:linear-gradient(180deg,#c4b5fd,#7c5ce7 70%,#4c1d95);min-height:4px;box-shadow:0 8px 24px rgba(124,92,231,.3);transition:height .6s cubic-bezier(.2,.8,.2,1)}
-    .bar-lbl{font-size:11px;color:var(--muted)}
-    .bar-val{font-size:10px;color:var(--faint)}
-
-    /* Lists */
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
-    .toolbar .field{width:auto;min-width:200px;flex:1;padding:11px 14px}
-    .seg{display:inline-flex;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:13px;padding:4px;gap:4px}
-    .seg button{padding:8px 12px;border-radius:10px;color:var(--muted);font-weight:600;font-size:12.5px}
-    .seg button.on{background:var(--glass2);color:var(--text);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
-    .row-item{display:flex;align-items:center;gap:14px;padding:14px;border-radius:16px;border:1px solid transparent;transition:.2s;cursor:pointer;flex-wrap:wrap}
-    .row-item:hover{background:var(--glass);border-color:var(--line)}
-    .avatar{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;font-weight:800;color:#120d24;background:linear-gradient(145deg,#ddd6fe,#8b5cf6);flex:none}
-    .grow{flex:1;min-width:150px}
-    .strong{font-weight:700}
-    .meta{color:var(--muted);font-size:12px;margin-top:3px;word-break:break-word}
-    .amt{font-weight:850;font-size:16px;white-space:nowrap}
-    .plus{color:var(--green)}.minus{color:var(--red)}
-    .badge{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:5px 10px;border-radius:99px;white-space:nowrap}
-    .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
-    .b-pending{color:var(--amber);background:rgba(251,191,36,.10)}
-    .b-approved,.b-active{color:var(--green);background:rgba(52,211,153,.10)}
-    .b-rejected,.b-frozen{color:var(--red);background:rgba(251,113,133,.10)}
-    .b-info{color:var(--cyan);background:rgba(103,232,249,.10)}
-    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    .empty{text-align:center;color:var(--muted);padding:34px 10px;font-size:13px}
-    .divider{height:1px;background:var(--line);margin:18px 0}
-    .stack > * + *{margin-top:12px}
-
-    /* Switches */
-    .switch{position:relative;width:44px;height:26px;flex:none}
-    .switch input{opacity:0;width:0;height:0;position:absolute}
-    .switch span{position:absolute;inset:0;border-radius:99px;background:rgba(255,255,255,.12);transition:.25s;cursor:pointer}
-    .switch span::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.25s;box-shadow:0 2px 6px rgba(0,0,0,.4)}
-    .switch input:checked + span{background:linear-gradient(120deg,var(--violet),var(--violet2))}
-    .switch input:checked + span::after{transform:translateX(18px)}
-    .setting{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
-    .setting:last-child{border:0}
-    .setting .t{font-weight:700}.setting .d{font-size:12px;color:var(--muted);margin-top:3px}
-
-    /* Modals */
-    .modal{position:fixed;inset:0;z-index:60;background:rgba(3,4,8,.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:16px}
-    .modal.show{display:flex;animation:fade .2s ease}
-    .dialog{width:min(560px,100%);max-height:90vh;overflow:auto;border-radius:24px;padding:24px;background:linear-gradient(170deg,#151823,#0c0e15);border:1px solid rgba(255,255,255,.1);box-shadow:var(--shadow);animation:pop .25s cubic-bezier(.2,.8,.2,1)}
-    .dialog-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
-    .dialog-head h2{margin:0;font-size:18px}
-    .x{width:34px;height:34px;border-radius:11px;background:var(--glass2);border:1px solid var(--line);color:var(--muted);font-size:14px}
-    .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
-    .stat-row > div{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:14px;padding:12px}
-    .stat-row small{display:block;color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.8px}
-    .stat-row b{display:block;margin-top:6px;font-size:15px}
-    @keyframes fade{from{opacity:0}to{opacity:1}}
-    @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
-
-    /* Toast */
-    .toasts{position:fixed;right:18px;bottom:18px;z-index:80;display:flex;flex-direction:column;gap:10px}
-    .toast{min-width:240px;max-width:360px;padding:13px 15px;border-radius:14px;background:rgba(20,23,33,.96);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;animation:pop .25s ease}
-    .toast.ok{border-color:rgba(52,211,153,.4)}.toast.err{border-color:rgba(251,113,133,.4)}
-
-    /* Responsive */
-    @media(max-width:980px){
-      .shell{grid-template-columns:1fr}
-      .side{display:none}
-      .mobile-nav{display:flex;gap:8px;overflow-x:auto;padding:12px 14px;position:sticky;top:0;z-index:20;background:rgba(7,8,12,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-      .mobile-nav .nav-btn{flex:none;padding:9px 13px;font-size:13px}
-      .main{padding:20px 14px 60px}
-      .grid-2,.grid-2b{grid-template-columns:1fr}
-      .stat-row{grid-template-columns:1fr 1fr}
-    }
-  
-    /* ===== Premium refresh ===== */
-    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-    .card{animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
-    .topbar h1{background:linear-gradient(120deg,#ffffff,#d9ccff 70%);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .kpi .val{background:linear-gradient(120deg,#ffffff,#c4b5fd);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .kpi{transition:transform .25s ease,border-color .25s ease}
-    .kpi:hover{transform:translateY(-2px);border-color:rgba(167,139,250,.35)}
-    .nav-btn{transition:background .2s,color .2s,transform .2s}
-    .nav-btn:hover{transform:translateX(3px)}
-    .row-item{transition:background .2s,border-color .2s,transform .2s}
-    .row-item:hover{transform:translateX(2px)}
-    .badge{backdrop-filter:blur(4px)}
-    .btn{transition:transform .2s,box-shadow .2s,background .2s,border-color .2s}
-    .btn:active:not(:disabled){transform:scale(.97)}
-    .btn-pri:hover:not(:disabled){box-shadow:0 14px 34px rgba(124,92,231,.45)}
-    .toast{backdrop-filter:blur(12px)}
-    .bar{transition:height .6s cubic-bezier(.2,.8,.2,1),filter .2s}
-    .bar:hover{filter:brightness(1.25)}
-    .side{box-shadow:inset -1px 0 0 rgba(255,255,255,.02)}
-    .field::placeholder{color:#5d6475}
     :focus-visible{outline:2px solid rgba(167,139,250,.7);outline-offset:2px}
-    ::-webkit-scrollbar{width:8px;height:8px}
-    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:99px}
-    @media(max-width:980px){
-      .topbar h1{font-size:20px}
-      .kpi .val{font-size:22px}
-      .main{padding-bottom:90px}
-    }
+    ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:99px}
+    h2{font-size:15px;margin:0;letter-spacing:.2px}
+    .muted{color:var(--muted)}
+    .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    label{display:block;font-size:11px;letter-spacing:.9px;text-transform:uppercase;color:var(--muted);margin:14px 0 7px}
 
-    /* ---------- New dashboard shortcuts + compact bottom navigation ---------- */
-    .shortcut-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:13px;margin:0 0 18px}
-    .shortcut{min-height:112px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.10);background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.025));box-shadow:0 12px 30px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.06);transition:.22s}
-    .shortcut:hover{transform:translateY(-3px);border-color:rgba(167,139,250,.42);background:linear-gradient(145deg,rgba(167,139,250,.18),rgba(255,255,255,.035))}
-    .shortcut-ico{width:44px;height:44px;display:grid;place-items:center;border-radius:15px;font-size:21px;color:#e9ddff;background:linear-gradient(145deg,rgba(167,139,250,.28),rgba(103,232,249,.10));border:1px solid rgba(255,255,255,.12)}
-    .shortcut-label{font-size:12px;font-weight:750;color:#eef0f8;text-align:center}
-    .mobile-nav{display:none}
-    .maintenance-fields{transition:opacity .2s ease,transform .2s ease}
-    .maintenance-fields[hidden]{display:none!important}
-    .crop-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,.18);margin-top:10px}
-    .crop-controls label{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:7px}
-    .crop-controls input{width:100%;accent-color:var(--violet)}
-    .media-preview{width:100%;max-height:220px;object-fit:contain;border-radius:14px;margin:10px 0;background:#05060a;border:1px solid var(--line)}
-    .video-preview{width:100%;aspect-ratio:16/9;border:1px solid var(--line);border-radius:14px;margin:10px 0;background:#05060a}
-    .about-section-editor{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(0,0,0,.18);margin-top:10px}
-    .about-section-editor-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
-    .about-section-editor .field{margin-top:8px}
-    .field-help{font-size:11px;color:var(--muted);margin:6px 0 0;line-height:1.5}
-    .soft-card{background:linear-gradient(145deg,rgba(167,139,250,.075),rgba(255,255,255,.018));border-color:rgba(167,139,250,.16)}
-    @media(max-width:980px){
-      .mobile-nav{display:flex;position:fixed;left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:40;gap:3px;justify-content:space-around;overflow-x:auto;padding:8px 6px;border:1px solid rgba(255,255,255,.12);border-radius:20px;background:rgba(12,13,21,.88);backdrop-filter:blur(22px);box-shadow:0 14px 40px rgba(0,0,0,.48)}
-      .mobile-nav .nav-btn{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:7px 3px;border-radius:13px;font-size:9px;line-height:1.1;white-space:nowrap;text-align:center}
-      .mobile-nav .nav-ico{width:auto;font-size:17px;line-height:1.1}
-      .mobile-nav .nav-count{display:none!important}
-      .main{padding-bottom:112px}
-      .shortcut-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
-      .shortcut{min-height:100px;border-radius:17px}
-      .shortcut-ico{width:40px;height:40px}
-    }
-    @media(max-width:390px){.mobile-nav .nav-btn{font-size:8px}.mobile-nav .nav-ico{font-size:16px}.crop-controls{grid-template-columns:1fr}}
+    /* ---------- Buttons & fields ---------- */
+    .field{width:100%;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:13px 14px;outline:none;transition:.2s}
+    .field:focus{border-color:rgba(167,139,250,.7);box-shadow:0 0 0 4px rgba(167,139,250,.14)}
+    .field::placeholder{color:#5d6475}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;border-radius:15px;font-weight:800;font-size:14px;transition:transform .2s,box-shadow .2s,background .2s;width:100%}
+    .btn:active:not(:disabled){transform:scale(.985)}
+    .btn-pri{background:linear-gradient(120deg,#c4b5fd,#7c5ce7);color:#120d24;box-shadow:0 12px 28px rgba(124,92,231,.35)}
+    .btn-pri:hover:not(:disabled){box-shadow:0 16px 36px rgba(124,92,231,.45)}
+    .btn-ghost{background:var(--glass2);border:1px solid var(--line);font-weight:700}
+    .btn-bad{background:rgba(251,113,133,.12);color:#fecdd3;border:1px solid rgba(251,113,133,.3);font-weight:700}
+    .link-btn{background:none;color:#c8baff;padding:6px 2px;font-size:13px;font-weight:700}
+    .notice{font-size:12.5px;line-height:1.55;color:#c4cad8;background:rgba(255,255,255,.04);border:1px solid var(--line);padding:12px 14px;border-radius:14px;margin-top:12px}
+    .notice.bad{border-color:rgba(251,113,133,.45);background:rgba(251,113,133,.07);color:#ffd0d8}
+    .notice.info{border-color:rgba(103,232,249,.3);background:rgba(103,232,249,.05)}
+    .empty{text-align:center;color:var(--muted);padding:26px 10px;font-size:13px}
+    .x{width:34px;height:34px;border-radius:12px;background:var(--glass2);border:1px solid var(--line);color:var(--muted);font-size:13px;flex:none}
+
+    /* ---------- Login gate ---------- */
+    .gate{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto;background:radial-gradient(900px 520px at 10% -12%,rgba(124,92,231,.26),transparent 60%),var(--bg)}
+    .gate.hide{display:none}
+    .gate-card{width:min(420px,100%);padding:30px 26px;border-radius:26px;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(18px);animation:pop .35s cubic-bezier(.2,.8,.2,1) both}
+    .auth-tabs{display:flex;gap:8px;margin:18px 0 6px}
+    .auth-tabs .tab{flex:1}
+    .tab{background:rgba(255,255,255,.05);color:#aeb3c0;padding:11px 14px;border-radius:13px;font-size:13px;font-weight:700;border:1px solid transparent;transition:.2s}
+    .tab.active{background:linear-gradient(120deg,rgba(167,139,250,.25),rgba(124,92,231,.12));color:#f0eaff;border-color:rgba(167,139,250,.35)}
+    .account-line{font-size:12px;color:#d6c9ff;background:rgba(124,92,231,.12);border:1px solid rgba(167,139,250,.3);border-radius:12px;padding:10px 12px;margin-top:12px;word-break:break-all}
+
+    /* ---------- Brand ---------- */
+    .brand{display:flex;align-items:center;gap:11px;font-size:18px;font-weight:800;letter-spacing:.4px}
+    .logo{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;font-size:20px;font-weight:900;color:#120d24;background:linear-gradient(145deg,#ddd6fe,#8b5cf6);box-shadow:0 10px 28px rgba(139,92,246,.45)}
+
+    /* ---------- App shell (phone-width column) ---------- */
+    .app{width:min(100%,760px);max-width:760px;margin:0 auto;padding:20px clamp(14px,3vw,28px) 48px;min-height:100vh}
+    @media(min-width:900px){.app{width:min(100%,920px);max-width:920px}.card{padding:22px}}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:4px 2px 14px}
+    .menu-btn{width:44px;height:44px;border-radius:14px;background:var(--glass2);border:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;transition:.2s}
+    .menu-btn:hover{background:rgba(255,255,255,.14)}
+    .menu-btn span{display:block;width:18px;height:2px;border-radius:2px;background:var(--text);transition:.25s}
+    .menu-btn.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    .menu-btn.open span:nth-child(2){opacity:0}
+    .menu-btn.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+    .card{background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.015));border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow);animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+    .hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#8b6cf0 0%,#4a2fa0 45%,#1e1640 100%);border:1px solid rgba(167,139,250,.35);box-shadow:0 30px 70px rgba(91,60,190,.35);min-height:186px;padding:22px}
+    .hero::before{content:"";position:absolute;inset:-40% -20%;background:radial-gradient(circle at 80% 20%,rgba(255,255,255,.18),transparent 45%);animation:shine 9s ease-in-out infinite;pointer-events:none}
+    .hero::after{content:"§";position:absolute;right:16px;bottom:-56px;font-size:200px;font-weight:900;color:#ffffff10;line-height:1}
+    .eyebrow{font-size:11px;color:#e6dcff;letter-spacing:1.2px;text-transform:uppercase;opacity:.9}
+    .amount{font-size:46px;font-weight:850;letter-spacing:-1.6px;margin:12px 0 10px;text-shadow:0 6px 30px rgba(0,0,0,.25)}
+    .chip{display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.14);padding:7px 12px;border-radius:99px;font-size:12px;color:#f0eaff;transition:.2s}
+    .chip:hover{background:rgba(0,0,0,.32)}
+    .chip b{letter-spacing:.4px}
+    .sub{font-size:12.5px;color:#e4dcf8;opacity:.9;margin-top:10px}
+
+    /* ---------- Ads ---------- */
+    .ads{position:relative;overflow:hidden;padding:0;margin-top:14px;border-radius:20px}
+    .ads-track{display:flex;transition:transform .55s cubic-bezier(.2,.8,.2,1)}
+    .ads-slide{flex:0 0 100%;min-width:100%}
+    .ads-slide img{width:100%;display:block;max-height:230px;aspect-ratio:16/7;object-fit:cover}
+    .ads-slide iframe{width:100%;display:block;aspect-ratio:16/9;min-height:190px;max-height:360px;border:0;background:#000}
+    .ads{touch-action:pan-y;user-select:none}
+    @media(min-width:700px){.ads-slide img{max-height:300px}.ads-slide iframe{min-height:280px}}
+    .ads-dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px}
+    .ads-dots span{width:7px;height:7px;border-radius:50%;background:#ffffff55;cursor:pointer;transition:.3s}
+    .ads-tag{position:absolute;top:10px;right:12px;font-size:10px;letter-spacing:.7px;background:rgba(0,0,0,.55);color:#ddd;padding:3px 8px;border-radius:99px;backdrop-filter:blur(4px)}
+
+    /* ---------- Quick actions ---------- */
+    .quick{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0 18px}
+    .qa{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 4px;border-radius:18px;background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--line);font-size:12px;font-weight:700;transition:transform .25s cubic-bezier(.2,.8,.2,1),border-color .25s,box-shadow .25s}
+    .qa:hover:not(:disabled){transform:translateY(-3px);border-color:rgba(167,139,250,.55);box-shadow:0 14px 30px rgba(124,92,231,.22)}
+    .qa:active:not(:disabled){transform:scale(.97)}
+    .qi{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:19px;background:rgba(167,139,250,.14);color:#e0d4ff}
+
+    /* ---------- Transactions ---------- */
+    .section-head{display:flex;justify-content:space-between;align-items:center;margin:4px 2px 10px}
+    .tx{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 6px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .tx:last-child{border:0}
+    .tx-title{font-size:13.5px;font-weight:650}
+    .tx-meta{font-size:11.5px;color:var(--muted);margin-top:3px}
+    .plus{color:var(--green);font-weight:750;white-space:nowrap}
+    .minus{color:#ff9fb0;font-weight:750;white-space:nowrap}
+    .seg{display:inline-flex;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:13px;padding:4px;gap:4px;margin-bottom:12px}
+    .seg button{padding:7px 12px;border-radius:10px;color:var(--muted);font-weight:700;font-size:12.5px}
+    .seg button.on{background:var(--glass2);color:var(--text)}
+
+    /* ---------- Side menu ---------- */
+    .overlay{position:fixed;inset:0;z-index:40;background:rgba(3,4,8,.6);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .3s}
+    .overlay.show{opacity:1;pointer-events:auto}
+    .drawer{position:fixed;top:0;right:0;bottom:0;z-index:50;width:min(330px,88vw);padding:22px 18px;display:flex;flex-direction:column;background:linear-gradient(170deg,#161924,#0a0c12);border-left:1px solid var(--line);box-shadow:-30px 0 60px rgba(0,0,0,.5);transform:translateX(105%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+    .drawer.show{transform:translateX(0)}
+    .drawer-head{display:flex;align-items:center;gap:12px;padding:6px 4px 18px;border-bottom:1px solid var(--line);margin-bottom:12px}
+    .avatar{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;font-weight:850;color:#120d24;background:linear-gradient(145deg,#ddd6fe,#8b5cf6);flex:none}
+    .drawer-head b{display:block;font-size:15px}
+    .mi{display:flex;align-items:center;gap:14px;width:100%;padding:13px 12px;border-radius:14px;text-align:left;font-weight:650;color:#e7e9f2;transition:background .2s}
+    .mi:hover{background:var(--glass2)}
+    .mi .mi-ico{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:rgba(167,139,250,.13);font-size:16px;flex:none}
+    .mi.danger{color:#fecdd3;margin-top:auto}
+    .mi.danger .mi-ico{background:rgba(251,113,133,.12)}
+
+    /* ---------- Modals ---------- */
+    .modal{position:fixed;inset:0;z-index:60;background:rgba(3,4,8,.72);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:14px}
+    .modal.show{display:flex;animation:fade .2s ease}
+    .dialog{width:min(470px,100%);max-height:90vh;overflow:auto;border-radius:24px;padding:22px;background:linear-gradient(170deg,#161924,#0c0e15);border:1px solid rgba(255,255,255,.1);box-shadow:var(--shadow);animation:pop .3s cubic-bezier(.2,.8,.2,1)}
+    .dialog-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px}
+    .dialog-head h2{font-size:18px}
+    .dialog p{margin:6px 0 0}
+    .chips{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 4px}
+    .chips button{padding:10px 0;border-radius:12px;background:var(--glass);border:1px solid var(--line);font-weight:750;font-size:13px;transition:.2s}
+    .chips button:hover{border-color:rgba(167,139,250,.5);background:rgba(167,139,250,.1)}
+    .qrbox{background:#fff;padding:16px;border-radius:18px;width:max-content;max-width:100%;margin:18px auto;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+    .qrbox img{display:block;max-width:100%}
+    .status{display:inline-block;border-radius:99px;padding:5px 10px;font-size:10px;font-weight:800;letter-spacing:.6px;background:rgba(251,191,36,.12);color:#fde68a}
+    .scan-box{display:none;margin-top:12px;border-radius:18px;overflow:hidden;border:1px solid var(--line);position:relative;background:#000}
+    .scan-box video{width:100%;display:block;max-height:280px;object-fit:cover}
+    .scan-box canvas{display:none}
+    .scan-frame{position:absolute;inset:18%;border:2px solid rgba(167,139,250,.9);border-radius:18px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+    .ig-btn{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:16px;background:linear-gradient(120deg,rgba(253,29,29,.12),rgba(131,58,180,.12));border:1px solid rgba(225,48,108,.35);margin-top:14px;text-align:left;text-decoration:none;color:var(--text);transition:.2s}
+    .ig-btn:hover{transform:translateY(-1px);border-color:rgba(225,48,108,.6)}
+    .ig-ico{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(45deg,#f58529,#dd2a7b 50%,#8134af);flex:none;box-shadow:0 8px 20px rgba(221,42,123,.35)}
+    .ig-btn b{display:block;font-size:14px}.ig-btn small{color:var(--muted);font-size:12px}
+    .offer{display:block;border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:12px;background:rgba(0,0,0,.25);text-decoration:none;color:inherit;transition:.2s}
+    .offer:hover{transform:translateY(-2px);border-color:rgba(167,139,250,.45)}
+    .offer img{width:100%;display:block;max-height:180px;object-fit:cover}
+    .offer div{padding:11px 14px;font-weight:700;font-size:13px}
+    .footer{text-align:center;color:#7b8195;font-size:12.5px;margin-top:28px;letter-spacing:.3px}
+    .toasts{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;align-items:center;gap:8px;width:min(92vw,400px)}
+    .toast{width:100%;padding:12px 15px;border-radius:14px;background:rgba(20,23,33,.96);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;text-align:center;animation:rise .3s ease both;backdrop-filter:blur(10px)}
+    .toast.err{border-color:rgba(251,113,133,.45);color:#ffd0d8}
+    .toast.ok{border-color:rgba(52,211,153,.4)}
+
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+    @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+    @keyframes fade{from{opacity:0}to{opacity:1}}
+    @keyframes shine{0%{transform:translateX(-30%)}50%{transform:translateX(30%)}100%{transform:translateX(-30%)}}
+    @media (max-width:420px){.amount{font-size:40px}.quick{gap:8px}.qa{font-size:11.5px}}
   </style>
 </head>
 <body>
 
-<!-- Login -->
-<div class="gate" id="gate">
-  <div class="gate-box">
-    <div class="brand" style="padding:0 0 22px"><div class="logo">§</div><div><b>ANTRU CONTROL</b><small>ADMIN ACCESS</small></div></div>
-    <p class="meta" style="margin:0 0 4px;font-size:13px">Ye panel sirf admin account ke liye hai.</p>
-    <label class="label" for="lEmail">Email</label>
-    <input class="field" id="lEmail" type="email" autocomplete="username" placeholder="admin email" />
-    <label class="label" for="lPass">Password</label>
-    <input class="field" id="lPass" type="password" autocomplete="current-password" placeholder="••••••••" />
-    <button class="btn btn-pri btn-block" id="lBtn" style="margin-top:20px">Sign in</button>
-    <button class="btn btn-ghost btn-block" id="lForgot" style="margin-top:10px">Forgot password?</button>
-    <div id="lMsg" class="notice bad" style="display:none;margin-top:14px"></div>
-  </div>
-</div>
+<!-- ============ Login / Sign up ============ -->
+<div class="gate" id="authGate">
+  <div class="gate-card">
+    <div class="brand"><div class="logo">§</div><span>ANTRU <span style="color:#b9a4ff">WALLET</span></span></div>
+    <div id="gateBanner" style="display:none;margin-top:14px"></div>
 
-<div class="shell" id="app" style="display:none">
-  <aside class="side">
-    <div class="brand"><div class="logo">§</div><div><b>ANTRU</b><small>CONTROL CENTER</small></div></div>
-    <button class="nav-btn active" data-view="overview"><span class="nav-ico">◎</span>Overview</button>
-    <button class="nav-btn" data-view="requests"><span class="nav-ico">⇣</span>Recharge requests<span class="nav-count" id="navPending" style="display:none"></span></button>
-    <button class="nav-btn" data-view="users"><span class="nav-ico">◉</span>Users</button>
-    <button class="nav-btn" data-view="transactions"><span class="nav-ico">⇄</span>Transactions</button>
-    <button class="nav-btn" data-view="ads"><span class="nav-ico">▣</span>Ads & banners</button>
-    <button class="nav-btn" data-view="settings"><span class="nav-ico">⚙</span>App control</button>
-    <button class="nav-btn" data-view="about"><span class="nav-ico">ⓘ</span>About editor</button>
-    <button class="nav-btn" data-view="audit"><span class="nav-ico">≡</span>Audit log</button>
-    <div class="side-foot"><div id="whoEmail"></div><button class="btn btn-ghost btn-block" id="signOutBtn" style="margin-top:12px">Sign out</button></div>
-  </aside>
-
-  <nav class="mobile-nav" aria-label="Main navigation">
-    <button class="nav-btn active" data-view="overview"><span class="nav-ico">⌂</span><span>Home</span></button>
-    <button class="nav-btn" data-view="requests"><span class="nav-ico">⇣</span><span>Requests</span></button>
-    <button class="nav-btn" data-view="users"><span class="nav-ico">◉</span><span>Users</span></button>
-    <button class="nav-btn" data-view="ads"><span class="nav-ico">▣</span><span>Ads</span></button>
-    <button class="nav-btn" data-view="settings"><span class="nav-ico">⚙</span><span>Control</span></button>
-    <button class="nav-btn" data-view="about"><span class="nav-ico">ⓘ</span><span>About</span></button>
-    <button class="nav-btn" data-view="audit"><span class="nav-ico">≡</span><span>Audit</span></button>
-  </nav>
-
-  <main class="main">
-
-    <!-- Overview -->
-    <section data-section="overview">
-      <div class="topbar"><div><h1>Overview</h1><p>Wallet ka live status</p></div><span class="pill" id="modePill">Live</span></div>
-      <div class="shortcut-grid" aria-label="Quick navigation">
-        <button class="shortcut" data-view="requests"><span class="shortcut-ico">⇣</span><span class="shortcut-label">Recharge requests</span></button>
-        <button class="shortcut" data-view="users"><span class="shortcut-ico">◉</span><span class="shortcut-label">Users</span></button>
-        <button class="shortcut" data-view="transactions"><span class="shortcut-ico">⇄</span><span class="shortcut-label">Transactions</span></button>
-        <button class="shortcut" data-view="ads"><span class="shortcut-ico">▣</span><span class="shortcut-label">Ads & videos</span></button>
-        <button class="shortcut" data-view="settings"><span class="shortcut-ico">⚙</span><span class="shortcut-label">App control</span></button>
-        <button class="shortcut" data-view="about"><span class="shortcut-ico">ⓘ</span><span class="shortcut-label">About editor</span></button>
-        <button class="shortcut" data-view="audit"><span class="shortcut-ico">≡</span><span class="shortcut-label">Audit log</span></button>
-      </div>
-      <div class="kpis">
-        <div class="card kpi"><div class="lbl">Pending requests</div><div class="val" id="kPending">0</div><div class="sm" id="kPendingAmt">—</div></div>
-        <div class="card kpi"><div class="lbl">Approved today</div><div class="val" id="kToday">0</div><div class="sm">recharge requests</div></div>
-        <div class="card kpi"><div class="lbl">Total recharged</div><div class="val" id="kIssued">0 §</div><div class="sm">all approved</div></div>
-        <div class="card kpi"><div class="lbl">Users</div><div class="val" id="kUsers">0</div><div class="sm" id="kFrozen">0 frozen</div></div>
-        <div class="card kpi"><div class="lbl">In circulation</div><div class="val" id="kCirc">0 §</div><div class="sm">sum of balances</div></div>
-      </div>
-      <div class="grid-2">
-        <div class="card"><h3>Recharge approved — last 7 days</h3><div class="chart" id="chart"></div></div>
-        <div class="card"><h3>Recent admin activity</h3><div id="ovActivity"><div class="empty">Abhi koi activity nahi.</div></div></div>
-      </div>
-      <div class="card" style="margin-top:18px"><h3>Waiting for verification</h3><div id="ovPending"><div class="empty">Koi pending request nahi.</div></div></div>
-    </section>
-
-    <!-- Requests -->
-    <section data-section="requests" style="display:none">
-      <div class="topbar"><div><h1>Recharge requests</h1><p>Payment check karke coins credit karein</p></div><button class="btn btn-ghost" id="csvBtn">Export CSV</button></div>
-      <div class="toolbar">
-        <div class="seg" id="reqSeg">
-          <button data-f="Pending" class="on">Pending</button><button data-f="Approved">Approved</button><button data-f="Rejected">Rejected</button><button data-f="All">All</button>
-        </div>
-        <input class="field" id="reqSearch" placeholder="Search name, Antru ID, request ID" />
-      </div>
-      <div class="card" id="reqList"></div>
-    </section>
-
-    <!-- Users -->
-    <section data-section="users" style="display:none">
-      <div class="topbar"><div><h1>Users</h1><p>Har user ka balance, status aur control</p></div></div>
-      <div class="toolbar">
-        <div class="seg" id="userSeg">
-          <button data-f="all" class="on">All</button><button data-f="active">Active</button><button data-f="frozen">Frozen</button>
-        </div>
-        <input class="field" id="userSearch" placeholder="Search name, email, Antru ID" />
-      </div>
-      <div class="card" id="userList"></div>
-    </section>
-
-    <!-- Transactions -->
-    <section data-section="transactions" style="display:none">
-      <div class="topbar"><div><h1>Transactions</h1><p>Sabhi credit aur debit entries, latest pehle</p></div></div>
-      <div class="toolbar">
-        <div class="seg" id="txSeg">
-          <button data-f="all" class="on">All</button><button data-f="credit">Credits</button><button data-f="debit">Debits</button>
-        </div>
-        <input class="field" id="txSearch" placeholder="Search title or user" />
-      </div>
-      <div class="card" id="txList"></div>
-    </section>
-
-    <!-- App control -->
-    <section data-section="settings" style="display:none">
-      <div class="topbar"><div><h1>App control</h1><p>Ye settings wallet app mein turant lagu hongi</p></div><button class="btn btn-pri" id="saveSettings">Save changes</button></div>
-      <div class="grid-2b">
-        <div class="card">
-          <h3>Payment details</h3>
-          <label class="label" for="sUpi">UPI ID (payee)</label>
-          <input class="field" id="sUpi" placeholder="name@bank" />
-          <label class="label" for="sPayee">Payee name</label>
-          <input class="field" id="sPayee" placeholder="Name shown in UPI app" />
-          <div class="grid-2b" style="gap:12px;margin-top:4px">
-            <div><label class="label" for="sMin">Min recharge (§)</label><input class="field" id="sMin" type="number" min="1" /></div>
-            <div><label class="label" for="sMax">Max recharge (§)</label><input class="field" id="sMax" type="number" min="1" /></div>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Feature switches</h3>
-          <div class="setting"><div><div class="t">New signups</div><div class="d">Naye users account bana sakein</div></div><label class="switch"><input type="checkbox" id="sSignups"><span></span></label></div>
-          <div class="setting"><div><div class="t">Add coins (recharge)</div><div class="d">Recharge requests banane do</div></div><label class="switch"><input type="checkbox" id="sRecharge"><span></span></label></div>
-          <div class="setting"><div><div class="t">Send coins (transfers)</div><div class="d">Antru-to-Antru payments chalne do</div></div><label class="switch"><input type="checkbox" id="sTransfers"><span></span></label></div>
-          <div class="setting"><div><div class="t">Maintenance mode</div><div class="d">Wallet band karke message dikhayein</div></div><label class="switch"><input type="checkbox" id="sMaint"><span></span></label></div>
-        </div>
-        <div class="card soft-card">
-          <h3>Maintenance screen content</h3>
-          <p class="field-help" style="margin:-6px 0 10px">Maintenance ON karne par hi title aur message controls khulenge.</p>
-          <div class="maintenance-fields" id="maintenanceFields" hidden>
-            <label class="label" for="sMaintTitle">Maintenance title</label>
-            <input class="field" id="sMaintTitle" maxlength="90" placeholder="We’ll be back soon" />
-            <label class="label" for="sMaintMsg">Maintenance message</label>
-            <textarea class="field" id="sMaintMsg" rows="3" maxlength="500" placeholder="Hum upgrade kar rahe hain, thodi der mein wapas aayein."></textarea>
-            <p class="field-help">Saved values: <code>maintenanceTitle</code> and <code>maintenanceMessage</code> in <code>appConfig/main</code>.</p>
-          </div>
-          <div id="maintenanceOffHint" class="notice" style="margin-top:6px">Maintenance OFF hai. Title aur message controls hidden hain.</div>
-        </div>
-        <div class="card">
-          <h3>Announcement banner</h3>
-          <textarea class="field" id="sAnn" rows="3" maxlength="500" placeholder="Wallet ke upar dikhne wala message. Khali chhodne par nahi dikhega."></textarea>
-        </div>
-      </div>
-      <div class="notice warn" style="margin-top:18px">Maintenance on karne par users aur transfers dono ruk jayenge. Save se pehle ek baar check kar lein.</div>
-    </section>
-
-    <!-- Ads & banners -->
-    <section data-section="ads" style="display:none">
-      <div class="topbar"><div><h1>Ads & banners</h1><p>Yahan ke ads user wallet ke dashboard par slider mein dikhenge</p></div></div>
-      <div class="grid-2b">
-        <div class="card">
-          <h3>New ad</h3>
-          <div class="seg" style="margin-bottom:12px;display:flex;flex-wrap:wrap">
-            <button class="on" data-ad-mode="upload">Upload image</button><button data-ad-mode="url">Image URL</button><button data-ad-mode="youtube">YouTube video</button>
-          </div>
-          <div id="adUploadBox">
-            <label class="label" for="adFile">Image file</label>
-            <input class="field" id="adFile" type="file" accept="image/*" />
-            <div class="meta" style="margin-bottom:6px">Upload image ko crop karke 16:9 banner banaya jayega, phir compress hoga.</div>
-            <div id="cropControls" class="crop-controls" hidden>
-              <label>Zoom <input id="cropZoom" type="range" min="1" max="2.5" step="0.05" value="1"></label>
-              <label>Horizontal <input id="cropX" type="range" min="-100" max="100" step="1" value="0"></label>
-              <label>Vertical <input id="cropY" type="range" min="-100" max="100" step="1" value="0"></label>
-              <button class="btn btn-ghost" type="button" id="resetCrop">Reset crop</button>
-            </div>
-          </div>
-          <div id="adUrlBox" style="display:none">
-            <label class="label" for="adUrl">Image URL (https:// se)</label>
-            <input class="field" id="adUrl" placeholder="https://example.com/banner.jpg" />
-            <p class="field-help">Remote URL images are shown as provided; crop controls apply to uploaded photos.</p>
-          </div>
-          <div id="adYoutubeBox" style="display:none">
-            <label class="label" for="adYoutubeUrl">YouTube video URL</label>
-            <input class="field" id="adYoutubeUrl" placeholder="https://www.youtube.com/watch?v=..." />
-            <p class="field-help">Video wallet app ke ad slot mein embedded player ke roop mein dikhega. Admin preview yahan hai.</p>
-          </div>
-          <img id="adPreview" class="media-preview" alt="Ad image preview" style="display:none" />
-          <iframe id="adVideoPreview" class="video-preview" title="YouTube ad preview" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="display:none"></iframe>
-          <label class="label" for="adTitle">Title</label>
-          <input class="field" id="adTitle" maxlength="80" placeholder="e.g. Diwali offer" />
-          <label class="label" for="adLink">Click par kahan jaye (optional)</label>
-          <input class="field" id="adLink" placeholder="https://..." />
-          <div class="grid-2b" style="gap:12px">
-            <div><label class="label" for="adOrder">Order</label><input class="field" id="adOrder" type="number" min="1" value="1" /></div>
-            <div><label class="label" for="adStart">Start (optional)</label><input class="field" id="adStart" type="datetime-local" /></div>
-          </div>
-          <label class="label" for="adEnd">End (optional)</label>
-          <input class="field" id="adEnd" type="datetime-local" />
-          <div class="setting" style="border:0;padding-top:4px"><div><div class="t">Active</div><div class="d">Band karne par wallet mein nahi dikhega</div></div><label class="switch"><input type="checkbox" id="adActive" checked><span></span></label></div>
-          <button class="btn btn-pri btn-block" id="saveAd" style="margin-top:10px">Save ad</button>
-        </div>
-        <div class="card">
-          <h3>All ads</h3>
-          <div id="adList"><div class="empty">Loading…</div></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- About editor -->
-    <section data-section="about" style="display:none">
-      <div class="topbar"><div><h1>About editor</h1><p>Wallet app ke About page ka content manage karein</p></div><button class="btn btn-pri" id="saveAbout">Save About page</button></div>
-      <div class="grid-2b">
-        <div class="card">
-          <h3>Main content</h3>
-          <label class="label" for="aboutTitle">Page title</label><input class="field" id="aboutTitle" maxlength="100" placeholder="About Antru" />
-          <label class="label" for="aboutSubtitle">Subtitle</label><input class="field" id="aboutSubtitle" maxlength="180" placeholder="A little place for your wallet" />
-          <label class="label" for="aboutText">Description / body text</label><textarea class="field" id="aboutText" rows="7" maxlength="5000" placeholder="About app ke baare mein likhein..."></textarea>
-        </div>
-        <div class="card">
-          <h3>Image and primary button</h3>
-          <label class="label" for="aboutImageUrl">Image URL (optional)</label><input class="field" id="aboutImageUrl" placeholder="https://example.com/about-banner.jpg" />
-          <label class="label" for="aboutButtonText">Button label</label><input class="field" id="aboutButtonText" maxlength="50" placeholder="Visit our website" />
-          <label class="label" for="aboutButtonUrl">Button URL</label><input class="field" id="aboutButtonUrl" placeholder="https://example.com" />
-          <p class="field-help">Use full https:// URLs. About image URL ko user app mein display karne ke liye front-end ko bhi ye field read karni hogi.</p>
-        </div>
-      </div>
-      <div class="card" style="margin-top:18px">
-        <div class="dialog-head"><div><h3 style="margin:0">Custom sections / links</h3><p class="meta">Har section mein heading, description aur optional link add kar sakte hain.</p></div><button class="btn btn-ghost" id="addAboutSection">＋ Add section</button></div>
-        <div id="aboutSectionsEditor"><div class="empty">Abhi koi custom section nahi hai.</div></div>
-      </div>
-      <div class="notice warn" style="margin-top:16px">Data <code>appConfig/main</code> mein <code>about</code>, <code>aboutTitle</code>, <code>aboutText</code> aur <code>aboutSections</code> fields mein save hoga. User app ke About renderer ko bhi in fields ko read karna hoga.</div>
-    </section>
-
-    <!-- Audit -->
-    <section data-section="audit" style="display:none">
-      <div class="topbar"><div><h1>Audit log</h1><p>Har admin action ka record. Ye edit ya delete nahi hota.</p></div></div>
-      <div class="card" id="auditList"></div>
-    </section>
-  </main>
-</div>
-
-<!-- Reason dialog -->
-<div class="modal" id="reasonModal">
-  <div class="dialog" style="width:min(460px,100%)">
-    <div class="dialog-head"><h2 id="reasonTitle">Reason</h2><button class="x" data-close="reasonModal">✕</button></div>
-    <textarea class="field" id="reasonText" rows="3" placeholder="Reason likhein (zaroori)"></textarea>
-    <div class="actions" style="justify-content:flex-end;margin-top:16px"><button class="btn btn-ghost" data-close="reasonModal">Cancel</button><button class="btn btn-pri" id="reasonOk">Confirm</button></div>
-  </div>
-</div>
-
-<!-- User detail -->
-<div class="modal" id="userModal">
-  <div class="dialog">
-    <div class="dialog-head"><h2 id="uTitle">User</h2><button class="x" data-close="userModal">✕</button></div>
-    <div id="uHead"></div>
-    <div class="stat-row" id="uStats"></div>
-    <div class="actions" id="uQuick"></div>
-    <div class="divider"></div>
-    <h3 style="margin:0 0 12px;font-size:14px">Manual adjustment</h3>
-    <div class="grid-2b" style="gap:10px">
-      <select class="field" id="uType"><option value="credit">Credit (add)</option><option value="debit">Debit (remove)</option></select>
-      <input class="field" id="uAmount" type="number" min="1" step="1" placeholder="Amount (§)" />
+    <div class="auth-tabs" id="authTabs">
+      <button class="tab active" id="tabLogin">Login</button>
+      <button class="tab" id="tabSignup">Sign up</button>
     </div>
-    <input class="field" id="uReason" placeholder="Reason (zaroori)" style="margin-top:10px" />
-    <button class="btn btn-pri btn-block" id="uApply" style="margin-top:12px">Apply adjustment</button>
-    <div class="divider"></div>
-    <h3 style="margin:0 0 12px;font-size:14px">Recent transactions</h3>
-    <div id="uTx"><div class="empty">Loading…</div></div>
+
+    <div id="formLogin">
+      <label for="loginEmail">Email</label>
+      <input class="field" id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email" />
+      <label for="loginPassword">Password</label>
+      <input class="field" id="loginPassword" type="password" placeholder="Apna password" autocomplete="current-password" />
+      <button class="btn btn-pri" id="loginBtn" style="margin-top:16px">Login</button>
+      <div style="text-align:right;margin-top:10px"><button class="link-btn" id="forgotBtn">Forgot password?</button></div>
+    </div>
+
+    <div id="formSignup" style="display:none">
+      <label for="signupName">Your name</label>
+      <input class="field" id="signupName" placeholder="e.g. Rahul Sharma" autocomplete="name" />
+      <label for="signupEmail">Email</label>
+      <input class="field" id="signupEmail" type="email" placeholder="you@example.com" autocomplete="email" />
+      <label for="signupPassword">Password (kam se kam 6 characters)</label>
+      <input class="field" id="signupPassword" type="password" placeholder="Naya password" autocomplete="new-password" />
+      <button class="btn btn-pri" id="signupBtn" style="margin-top:16px">Create account</button>
+    </div>
+
+    <!-- Shown when a signed-in account has no wallet profile yet -->
+    <div id="formName" style="display:none">
+      <h2 style="margin-top:14px">Apna naam batayein</h2>
+      <div class="account-line" id="nameEmail"></div>
+      <label for="userName">Your name</label>
+      <input class="field" id="userName" placeholder="e.g. Rahul Sharma" autocomplete="name" />
+      <button class="btn btn-pri" id="saveNameBtn" style="margin-top:16px">Continue</button>
+      <div style="text-align:center;margin-top:10px"><button class="link-btn" id="nameSignOutBtn">Doosre account se login karein</button></div>
+    </div>
+
+    <div id="authMsg" class="notice" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ============ Main wallet ============ -->
+<div class="app" id="app" style="display:none">
+  <header class="topbar">
+    <div class="brand"><div class="logo">§</div><span>Antru</span></div>
+    <button class="menu-btn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button>
+  </header>
+
+  <div id="globalBanner" style="display:none;margin-bottom:12px"></div>
+
+  <section class="card hero">
+    <div class="eyebrow">Available balance</div>
+    <div class="amount"><span id="balance">0</span> §</div>
+    <button class="chip" id="idChip" title="ID copy karein"><span>Antru ID</span><b id="antruIdText">—</b><span>⧉</span></button>
+    <div class="sub" id="greeting"></div>
+  </section>
+
+  <section id="adsBox" class="card ads" style="display:none">
+    <div class="ads-track" id="adsTrack"></div>
+    <div class="ads-dots" id="adsDots"></div>
+    <span class="ads-tag">AD</span>
+  </section>
+
+  <section class="quick">
+    <button class="qa" id="btnAdd"><span class="qi">＋</span>Add coins</button>
+    <button class="qa" id="btnScan"><span class="qi">↗</span>Send</button>
+    <button class="qa" id="btnQR"><span class="qi">▣</span>My QR</button>
+    <button class="qa" id="btnHistory"><span class="qi">↺</span>History</button>
+  </section>
+
+  <section class="card">
+    <div class="section-head"><h2>Recent activity</h2><button class="link-btn" id="seeAll">Sab dekhein</button></div>
+    <div id="transactions"><div class="empty">Abhi koi transaction nahi hai.</div></div>
+  </section>
+
+  <div class="footer">Made with love ❤️ for you</div>
+</div>
+
+<!-- ============ Side menu ============ -->
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <div class="avatar" id="dAvatar">?</div>
+    <div style="min-width:0;flex:1"><b id="dName">—</b><div class="muted" id="dId" style="font-size:12px"></div></div>
+    <button class="x" id="drawerClose" aria-label="Close">✕</button>
+  </div>
+  <button class="mi" data-go="profile"><span class="mi-ico">👤</span>My profile</button>
+  <button class="mi" data-go="offers"><span class="mi-ico">🎁</span>Offers & ads</button>
+  <button class="mi" data-go="share"><span class="mi-ico">↗</span>Share my Antru ID</button>
+  <button class="mi" data-go="help"><span class="mi-ico">❓</span>How Antru works</button>
+  <button class="mi" data-go="about"><span class="mi-ico">ⓘ</span>About</button>
+  <button class="mi danger" data-go="signout"><span class="mi-ico">⏻</span>Sign out</button>
+</aside>
+
+<!-- ============ Add coins ============ -->
+<div class="modal" id="addModal">
+  <div class="dialog">
+    <div class="dialog-head"><h2>Add coins</h2><button class="x" data-close="addModal">✕</button></div>
+    <p class="muted" style="font-size:13px">Kitne § chahiye? Quick amount chunein ya khud likhein.</p>
+    <div class="chips">
+      <button data-amt="50">50 §</button><button data-amt="100">100 §</button><button data-amt="500">500 §</button><button data-amt="1000">1000 §</button>
+    </div>
+    <label for="coinAmount">Amount (§)</label>
+    <input class="field" id="coinAmount" type="number" min="1" step="1" placeholder="e.g. 250" />
+    <button class="btn btn-pri" id="genBtn" style="margin-top:14px">Generate payment QR</button>
+
+    <div id="paymentResult" style="display:none;text-align:center;margin-top:14px">
+      <div class="status">PAYMENT REQUEST CREATED</div>
+      <div class="qrbox"><div id="paymentQR"></div></div>
+      <div style="font-weight:850;font-size:24px" id="payAmount">₹0</div>
+      <div class="muted" style="font-size:12px;margin-top:4px" id="requestId"></div>
+      <a id="upiLink" href="#" class="btn btn-ghost" style="margin-top:14px;text-decoration:none">UPI app mein kholein</a>
+      <div class="notice info" style="text-align:left">Payment ke baad admin check karke coins credit karega.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Send coins (with QR scanner) ============ -->
+<div class="modal" id="sendModal">
+  <div class="dialog">
+    <div class="dialog-head"><h2>Send coins</h2><button class="x" data-close="sendModal">✕</button></div>
+    <p class="muted" style="font-size:13px">QR scan karein ya Antru ID type karein.</p>
+    <button class="btn btn-ghost" id="scanStartBtn" style="margin-top:12px">▣ QR scan karein</button>
+    <div class="scan-box" id="scanBox">
+      <video id="scanVideo" playsinline muted></video>
+      <canvas id="scanCanvas"></canvas>
+      <div class="scan-frame"></div>
+    </div>
+    <label for="sendTo">Recipient Antru ID</label>
+    <input class="field" id="sendTo" placeholder="e.g. ANTRU123456" autocapitalize="characters" />
+    <button class="btn btn-ghost" id="verifyRecipientBtn" type="button" style="margin-top:10px">Verify Antru ID</button>
+    <div id="recipientPreview" class="notice info" style="display:none"></div>
+    <label for="sendAmount">Amount (§)</label>
+    <input class="field" id="sendAmount" type="number" min="1" step="1" placeholder="e.g. 50" />
+    <button class="btn btn-pri" id="sendBtn" style="margin-top:16px">Send coins</button>
+  </div>
+</div>
+
+<!-- ============ My QR ============ -->
+<div class="modal" id="qrModal">
+  <div class="dialog" style="text-align:center">
+    <div class="dialog-head"><h2>My Antru QR</h2><button class="x" data-close="qrModal">✕</button></div>
+    <p class="muted" style="font-size:13px">Doosre user ko ye QR dikhayein, wo aapko coins bhej sakenge.</p>
+    <div class="qrbox"><div id="myQR"></div></div>
+    <div style="font-weight:800;letter-spacing:.5px" id="myAntruId"></div>
+    <button class="btn btn-ghost" id="qrShareBtn" style="margin-top:14px">Share karein</button>
+  </div>
+</div>
+
+<!-- ============ Profile ============ -->
+<div class="modal" id="profileModal">
+  <div class="dialog">
+    <div class="dialog-head"><h2>My profile</h2><button class="x" data-close="profileModal">✕</button></div>
+    <div class="row" style="margin:14px 0 4px"><span class="muted">Email</span><span id="pEmail" style="font-size:13px;word-break:break-all"></span></div>
+    <div class="row" style="margin:8px 0"><span class="muted">Antru ID</span><b id="pId"></b></div>
+    <div class="row" style="margin:8px 0"><span class="muted">Joined</span><span id="pJoined" style="font-size:13px"></span></div>
+    <div class="row" style="margin:8px 0"><span class="muted">Status</span><span id="pStatus" style="font-size:13px"></span></div>
+
+    <div style="border-top:1px solid var(--line);margin:18px 0 0;padding-top:16px">
+      <h2>Naam badlein</h2>
+      <label for="pName">Naam</label>
+      <input class="field" id="pName" autocomplete="name" />
+      <button class="btn btn-ghost" id="saveProfileBtn" style="margin-top:12px">Naam save karein</button>
+    </div>
+
+    <div style="border-top:1px solid var(--line);margin:18px 0 0;padding-top:16px">
+      <h2>Password badlein</h2>
+      <label for="curPass">Purana password</label>
+      <input class="field" id="curPass" type="password" autocomplete="current-password" />
+      <label for="newPass">Naya password</label>
+      <input class="field" id="newPass" type="password" autocomplete="new-password" />
+      <label for="newPass2">Naya password dobara</label>
+      <input class="field" id="newPass2" type="password" autocomplete="new-password" />
+      <button class="btn btn-ghost" id="changePassBtn" style="margin-top:12px">Password change karein</button>
+      <div class="muted" style="font-size:11.5px;margin-top:8px">Agar account email link se bana tha aur password nahi hai, to login par "Forgot password?" se password set karein.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Offers & ads ============ -->
+<div class="modal" id="offersModal">
+  <div class="dialog">
+    <div class="dialog-head"><h2>Offers & ads</h2><button class="x" data-close="offersModal">✕</button></div>
+    <div id="offersList" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- ============ History ============ -->
+<div class="modal" id="historyModal">
+  <div class="dialog">
+    <div class="dialog-head"><h2>Transactions</h2><button class="x" data-close="historyModal">✕</button></div>
+    <div class="seg" id="txSeg" style="margin-top:12px">
+      <button data-f="all" class="on">Sab</button><button data-f="credit">Credit</button><button data-f="debit">Debit</button>
+    </div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<!-- ============ How Antru works ============ -->
+<div class="modal" id="helpModal">
+  <div class="dialog">
+    <div class="dialog-head"><h2>How Antru works</h2><button class="x" data-close="helpModal">✕</button></div>
+    <div class="tx"><div><div class="tx-title">1. Coins request karein</div><div class="tx-meta">Add coins se amount chunein</div></div><span>＋</span></div>
+    <div class="tx"><div><div class="tx-title">2. UPI se payment karein</div><div class="tx-meta">Generate hone wala QR scan karein</div></div><span>▦</span></div>
+    <div class="tx"><div><div class="tx-title">3. Admin verify karega</div><div class="tx-meta">Payment check hone ke baad approval</div></div><span>✓</span></div>
+    <div class="tx"><div><div class="tx-title">4. Coins credit honge</div><div class="tx-meta">Balance turant update ho jayega</div></div><span>§</span></div>
+    <div class="tx"><div><div class="tx-title">Doosron ko bhejें</div><div class="tx-meta">Send mein QR scan karein ya Antru ID daalein</div></div><span>↗</span></div>
+  </div>
+</div>
+
+<!-- ============ About ============ -->
+<div class="modal" id="aboutModal">
+  <div class="dialog">
+    <div class="dialog-head"><h2>About</h2><button class="x" data-close="aboutModal">✕</button></div>
+    <div id="aboutDynamic"><div class="brand" style="margin-top:12px"><div class="logo">§</div><span>ANTRU <span style="color:#b9a4ff">WALLET</span></span></div><p class="muted" style="font-size:13px">Antru Wallet se apne doston aur community ke saath coins ka lena-dena aasan hai. Version 1.0</p><p class="muted" style="font-size:13px">Ye app <b style="color:var(--text)">Prince Jha</b> ne banaya hai.</p></div>
+    <a class="ig-btn" href="https://www.instagram.com/princejha01" target="_blank" rel="noopener noreferrer">
+      <span class="ig-ico">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none"/>
+        </svg>
+      </span>
+      <span><b>Instagram par follow karein</b><small>@princejha01</small></span>
+    </a>
+    <div class="footer" style="margin-top:20px">Made with love ❤️ for you</div>
+  </div>
+</div>
+
+<!-- ============ Share ============ -->
+<div class="modal" id="shareModal">
+  <div class="dialog" style="text-align:center">
+    <div class="dialog-head"><h2>Antru ID share karein</h2><button class="x" data-close="shareModal">✕</button></div>
+    <div style="font-size:22px;font-weight:850;letter-spacing:1px;margin:16px 0" id="shareId"></div>
+    <button class="btn btn-pri" id="shareNowBtn">Share karein</button>
+    <button class="btn btn-ghost" id="copyIdBtn" style="margin-top:10px">ID copy karein</button>
   </div>
 </div>
 
@@ -472,16 +406,16 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
   import {
-    getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, sendPasswordResetEmail
+    getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged,
+    createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut,
+    updatePassword, reauthenticateWithCredential, EmailAuthProvider
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, setDoc, collection, query, where, onSnapshot, getDocs,
-    runTransaction, serverTimestamp, addDoc, updateDoc, deleteDoc
+    getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, onSnapshot,
+    writeBatch, serverTimestamp, increment, runTransaction
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  // Only this account can use the control panel. Firestore rules enforce the same email.
-  const ADMIN_EMAIL = "jhap20046@gmail.com";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC2wgnRyUnCG7Xi0Jgd4iKn1fGdMVOyI6Q",
@@ -493,736 +427,583 @@
     measurementId: "G-H9Y59MH43T"
   };
 
+  // Default payment details. The admin app can override these from App control.
+  let CONFIG = { payeeName: "prince1538@axl", upiId: "prince1538@axl", currency: "INR" };
+
   const app = initializeApp(firebaseConfig);
+  isSupported().then(ok => { if (ok) getAnalytics(app); }).catch(() => {});
   const auth = getAuth(app);
   const db = getFirestore(app);
+  setPersistence(auth, browserLocalPersistence).catch(() => {});
 
+  // ---------- Helpers ----------
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const fmt = n => Number(n || 0).toLocaleString("en-IN");
-  const fmtDate = ts => (ts && ts.toDate) ? ts.toDate().toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) : "—";
+  const fmtDate = ts => (ts && ts.toDate) ? ts.toDate().toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) : "Abhi";
   const toMs = ts => (ts && ts.toMillis) ? ts.toMillis() : Date.now();
-  const sameDay = (a, b) => a.toDateString() === b.toDateString();
-  const isToday = ts => !!(ts && ts.toDate) && sameDay(ts.toDate(), new Date());
+  const newestFirst = (a, b) => toMs(b.createdAt) - toMs(a.createdAt);
+  const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   const initials = n => (String(n || "?").trim().split(/\s+/).map(w => w[0]).join("").slice(0, 2) || "?").toUpperCase();
-  const withTimeout = (p, ms = 20000) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error("timeout"), { code: "app/timeout" })), ms))]);
-  const ERR = {
-    "permission-denied": "Permission nahi hai. Rules publish hain aur ye admin email sahi hai, check karein.",
-    "app/timeout": "Server se response nahi aaya. Internet check karein.",
-    "auth/invalid-credential": "Email ya password galat hai.",
-    "auth/invalid-email": "Email sahi nahi lag raha.",
-    "auth/too-many-requests": "Bahut zyada attempts. Thodi der baad try karein."
-  };
-  const friendly = e => ERR[e?.code] || e?.message || "Kuch galat ho gaya.";
+  const withTimeout = (promise, ms = 20000) => Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(Object.assign(new Error("timeout"), { code: "app/timeout" })), ms))
+  ]);
 
   function toast(msg, kind = "ok") {
     const t = document.createElement("div");
     t.className = "toast " + kind;
     t.textContent = msg;
     $("toasts").appendChild(t);
-    setTimeout(() => t.remove(), 3800);
+    setTimeout(() => t.remove(), 3200);
   }
 
-  let me = null, requests = [], users = [], actions = [], txs = [], config = {};
-  let unsubs = [], currentUid = null, reqFilter = "Pending", userFilter = "all", txFilter = "all", reasonResolve = null;
+  const AUTH_ERRORS = {
+    "auth/invalid-credential": "Email ya password galat hai. Agar aapne pehle email link se account banaya tha, to 'Forgot password?' se password set karein.",
+    "auth/wrong-password": "Password galat hai.",
+    "auth/user-not-found": "Is email se koi account nahi mila. Pehle Sign up karein.",
+    "auth/invalid-email": "Email address sahi nahi lag raha.",
+    "auth/email-already-in-use": "Ye email pehle se registered hai. Login karein, ya 'Forgot password?' use karein.",
+    "auth/weak-password": "Password kam se kam 6 characters ka hona chahiye.",
+    "auth/missing-password": "Password daalein.",
+    "auth/too-many-requests": "Bahut zyada attempts ho gaye. Thodi der baad try karein.",
+    "auth/quota-exceeded": "Aaj ki email limit khatam ho gayi hai. Thodi der baad try karein.",
+    "auth/network-request-failed": "Internet connection check karke dobara try karein.",
+    "app/timeout": "Server se response nahi aaya. Internet check karein.",
+    "permission-denied": "Database access denied. Firestore rules publish karein.",
+    "unavailable": "Service abhi available nahi hai. Thodi der baad try karein.",
+    "not-found": "Database ya project setup nahi mila."
+  };
+  const friendlyError = e => AUTH_ERRORS[e?.code] || e?.message || "Kuch galat ho gaya.";
+
+  function showMsg(text) { $("authMsg").textContent = text; $("authMsg").style.display = text ? "block" : "none"; }
+  function setBusy(id, busy, label) { const b = $(id); b.disabled = busy; b.textContent = busy ? "Please wait..." : label; }
+  function showAuthForm(which) {
+    $("formLogin").style.display = which === "login" ? "block" : "none";
+    $("formSignup").style.display = which === "signup" ? "block" : "none";
+    $("formName").style.display = which === "name" ? "block" : "none";
+    $("authTabs").style.display = which === "name" ? "none" : "flex";
+    $("tabLogin").classList.toggle("active", which === "login");
+    $("tabSignup").classList.toggle("active", which === "signup");
+  }
+  $("tabLogin").onclick = () => { showMsg(""); showAuthForm("login"); };
+  $("tabSignup").onclick = () => { showMsg(""); showAuthForm("signup"); };
+
+  // ---------- Modals & drawer ----------
+  function openModal(id) { $(id).classList.add("show"); }
+  function closeModal(id) {
+    $(id).classList.remove("show");
+    if (id === "sendModal") stopScan();
+  }
+  document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => closeModal(b.dataset.close)));
+  document.querySelectorAll(".modal").forEach(m => m.addEventListener("click", e => { if (e.target === m) closeModal(m.id); }));
+
+  function openDrawer() { $("drawer").classList.add("show"); $("overlay").classList.add("show"); $("menuBtn").classList.add("open"); }
+  function closeDrawer() { $("drawer").classList.remove("show"); $("overlay").classList.remove("show"); $("menuBtn").classList.remove("open"); }
+  $("menuBtn").addEventListener("click", () => $("drawer").classList.contains("show") ? closeDrawer() : openDrawer());
+  $("drawerClose").addEventListener("click", closeDrawer);
+  $("overlay").addEventListener("click", closeDrawer);
+
+  document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => {
+    const go = b.dataset.go;
+    closeDrawer();
+    if (go === "profile") openProfile();
+    if (go === "offers") { renderOffers(); openModal("offersModal"); }
+    if (go === "share") shareOpen();
+    if (go === "help") openModal("helpModal");
+    if (go === "about") openModal("aboutModal");
+    if (go === "signout") signOut(auth);
+  }));
 
   // ---------- Login ----------
-  function showLogin(msg) {
-    $("gate").classList.remove("hide"); $("app").style.display = "none";
-    $("lMsg").textContent = msg || ""; $("lMsg").style.display = msg ? "block" : "none";
-  }
-  $("lBtn").addEventListener("click", async () => {
-    const email = $("lEmail").value.trim(), pass = $("lPass").value;
-    if (!email || !pass) return showLogin("Email aur password daalein.");
-    $("lBtn").disabled = true;
-    try { await withTimeout(signInWithEmailAndPassword(auth, email, pass)); }
-    catch (e) { showLogin(friendly(e)); }
-    finally { $("lBtn").disabled = false; }
+  $("loginBtn").addEventListener("click", async () => {
+    const email = $("loginEmail").value.trim();
+    const password = $("loginPassword").value;
+    if (!isEmail(email)) return showMsg("Sahi email address daalein.");
+    if (!password) return showMsg("Password daalein.");
+    setBusy("loginBtn", true, "Login");
+    showMsg("");
+    try { await withTimeout(signInWithEmailAndPassword(auth, email, password)); }
+    catch (e) { showMsg(friendlyError(e)); }
+    finally { setBusy("loginBtn", false, "Login"); }
   });
-  $("lPass").addEventListener("keydown", e => { if (e.key === "Enter") $("lBtn").click(); });
-  $("lForgot").addEventListener("click", async () => {
-    const email = $("lEmail").value.trim();
-    if (!email) return showLogin("Pehle email daalein, phir Forgot password dabayein.");
+
+  $("forgotBtn").addEventListener("click", async () => {
+    const email = $("loginEmail").value.trim();
+    if (!isEmail(email)) return showMsg("Pehle upar email daalein, phir 'Forgot password?' dabayein.");
     try {
       await withTimeout(sendPasswordResetEmail(auth, email));
-      showLogin("Reset link " + email + " par bhej diya gaya hai. Inbox aur spam dono check karein.");
-    } catch (e) { showLogin(friendly(e)); }
+      showMsg("Reset link " + email + " par bhej diya gaya hai. Inbox aur spam dono check karein.");
+    } catch (e) { showMsg(friendlyError(e)); }
   });
-  $("signOutBtn").addEventListener("click", () => signOut(auth));
 
-  onAuthStateChanged(auth, u => {
+  // ---------- Profile creation (antruIds + users written together) ----------
+  const randomAntruId = () => "ANTRU" + Math.floor(100000 + Math.random() * 900000);
+  let creatingProfile = false;
+
+  async function createProfile(u, name) {
+    for (let i = 0; i < 8; i++) {
+      const antruId = randomAntruId();
+      const batch = writeBatch(db);
+      batch.set(doc(db, "antruIds", antruId), { uid: u.uid, name });
+      batch.set(doc(db, "users", u.uid), { antruId, name, email: u.email, balance: 0, status: "active", createdAt: serverTimestamp() });
+      try { await withTimeout(batch.commit()); return; }
+      catch (e) {
+        if (e.code !== "permission-denied") throw e;
+        const probe = await withTimeout(getDoc(doc(db, "users", u.uid))).catch(() => null);
+        if (!probe || probe.exists()) throw e;
+      }
+    }
+    throw new Error("Antru ID generate nahi ho paya. Dobara try karein.");
+  }
+
+  // ---------- Sign up ----------
+  $("signupBtn").addEventListener("click", async () => {
+    const name = $("signupName").value.trim();
+    const email = $("signupEmail").value.trim();
+    const password = $("signupPassword").value;
+    if (!name) return showMsg("Naam likhna zaroori hai.");
+    if (!isEmail(email)) return showMsg("Sahi email address daalein.");
+    if (appSettings.signupsEnabled === false) return showMsg("Naye accounts abhi band hain. Baad mein try karein.");
+    if (password.length < 6) return showMsg("Password kam se kam 6 characters ka hona chahiye.");
+    setBusy("signupBtn", true, "Create account");
+    showMsg("");
+    creatingProfile = true;
+    let accountCreated = false;
+    try {
+      const cred = await withTimeout(createUserWithEmailAndPassword(auth, email, password));
+      accountCreated = true;
+      await createProfile(cred.user, name);
+      creatingProfile = false;
+      await enterWallet();
+    } catch (e) {
+      creatingProfile = false;
+      if (accountCreated && auth.currentUser) {
+        $("userName").value = name;
+        $("nameEmail").textContent = "Logged in as: " + (auth.currentUser.email || "");
+        showAuthForm("name");
+      }
+      showMsg(friendlyError(e));
+    } finally { setBusy("signupBtn", false, "Create account"); }
+  });
+
+  // ---------- Name step (account exists without profile) ----------
+  $("saveNameBtn").addEventListener("click", async () => {
+    const name = $("userName").value.trim();
+    if (!name) return showMsg("Naam likhna zaroori hai.");
+    if (!auth.currentUser) return showMsg("Pehle login karein.");
+    setBusy("saveNameBtn", true, "Continue");
+    showMsg("");
+    creatingProfile = true;
+    try {
+      await createProfile(auth.currentUser, name);
+      creatingProfile = false;
+      await enterWallet();
+    } catch (e) { creatingProfile = false; showMsg(friendlyError(e)); }
+    finally { setBusy("saveNameBtn", false, "Continue"); }
+  });
+  $("nameSignOutBtn").addEventListener("click", () => signOut(auth));
+
+  // ---------- Session gate ----------
+  onAuthStateChanged(auth, async u => {
+    user = u;
     unsubs.forEach(f => f()); unsubs = [];
-    if (!u) { me = null; showLogin(""); return; }
-    if (u.email !== ADMIN_EMAIL) {
-      signOut(auth);
-      showLogin("Ye account admin nahi hai. Sirf " + ADMIN_EMAIL + " se login ho sakta hai.");
+    if (!u) {
+      profile = null;
+      $("app").style.display = "none";
+      $("authGate").classList.remove("hide");
+      $("loginPassword").value = ""; $("signupPassword").value = "";
+      showAuthForm("login"); showMsg("");
+      closeDrawer();
       return;
     }
-    me = u.email;
-    $("whoEmail").textContent = me;
-    $("gate").classList.add("hide"); $("app").style.display = "grid";
-    startListeners();
-  });
-
-  // ---------- Live data ----------
-  function startListeners() {
-    unsubs.push(onSnapshot(collection(db, "rechargeRequests"), s => {
-      requests = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => toMs(b.createdAt) - toMs(a.createdAt));
-      renderAll();
-    }, e => toast(friendly(e), "err")));
-    unsubs.push(onSnapshot(collection(db, "users"), s => {
-      users = s.docs.map(d => ({ uid: d.id, ...d.data() })).sort((a, b) => toMs(b.createdAt) - toMs(a.createdAt));
-      renderAll();
-      if (currentUid) refreshUserModalHead();
-    }, e => toast(friendly(e), "err")));
-    unsubs.push(onSnapshot(collection(db, "transactions"), s => {
-      txs = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => toMs(b.createdAt) - toMs(a.createdAt));
-      renderTx(); renderOverview();
-    }, () => {}));
-    unsubs.push(onSnapshot(collection(db, "adminActions"), s => {
-      actions = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => toMs(b.createdAt) - toMs(a.createdAt));
-      renderAudit(); renderOverview();
-    }, () => {}));
-    startAds();
-    unsubs.push(onSnapshot(doc(db, "appConfig", "main"), s => {
-      config = s.exists() ? s.data() : {};
-      fillSettings(); fillAbout(); renderMode();
-    }, () => {}));
-  }
-
-  function renderAll() { renderOverview(); renderRequests(); renderUsers(); renderTx(); }
-
-  // ---------- Navigation ----------
-  function go(view) {
-    document.querySelectorAll("[data-section]").forEach(s => s.style.display = s.dataset.section === view ? "block" : "none");
-    document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === view));
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-  document.querySelectorAll("[data-view]").forEach(b => b.addEventListener("click", () => go(b.dataset.view)));
-
-  function badge(s) {
-    const key = String(s || "").toLowerCase();
-    return `<span class="badge b-${key}">${esc(s)}</span>`;
-  }
-  const avatar = name => `<div class="avatar">${esc(initials(name))}</div>`;
-
-  // ---------- Overview ----------
-  function renderOverview() {
-    const pending = requests.filter(r => r.status === "Pending");
-    const approved = requests.filter(r => r.status === "Approved");
-    const pendingAmt = pending.reduce((s, r) => s + (r.amount || 0), 0);
-    const issued = approved.reduce((s, r) => s + (r.amount || 0), 0);
-    const frozen = users.filter(u => u.status === "frozen").length;
-    const circ = users.reduce((s, u) => s + (u.balance || 0), 0);
-
-    $("kPending").textContent = pending.length;
-    $("kPendingAmt").textContent = "₹" + fmt(pendingAmt) + " to verify";
-    $("kToday").textContent = approved.filter(r => isToday(r.processedAt)).length;
-    $("kIssued").textContent = fmt(issued) + " §";
-    $("kUsers").textContent = users.length;
-    $("kFrozen").textContent = frozen + " frozen";
-    $("kCirc").textContent = fmt(circ) + " §";
-
-    const navP = $("navPending");
-    navP.style.display = pending.length ? "inline-block" : "none";
-    navP.textContent = pending.length;
-
-    // 7-day chart of approved recharge amounts
-    const days = [...Array(7)].map((_, i) => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - (6 - i)); return d; });
-    const vals = days.map(d => approved.filter(r => r.processedAt?.toDate && sameDay(r.processedAt.toDate(), d)).reduce((s, r) => s + (r.amount || 0), 0));
-    const max = Math.max(1, ...vals);
-    $("chart").innerHTML = vals.map((v, i) => `
-      <div class="bar-wrap">
-        <div class="bar-val">${v ? fmt(v) : ""}</div>
-        <div class="bar" style="height:${Math.max(4, Math.round(v / max * 100))}%" title="${fmt(v)} §"></div>
-        <div class="bar-lbl">${days[i].toLocaleDateString("en-IN", { weekday: "short" })}</div>
-      </div>`).join("");
-
-    $("ovPending").innerHTML = pending.length ? pending.slice(0, 4).map(r => reqRow(r, true)).join("") : '<div class="empty">Koi pending request nahi.</div>';
-    $("ovActivity").innerHTML = actions.length ? actions.slice(0, 5).map(activityRow).join("") : '<div class="empty">Abhi koi activity nahi.</div>';
-  }
-
-  // ---------- Requests ----------
-  function reqRow(r, compact = false) {
-    const acts = r.status === "Pending" ? `
-      <div class="actions" style="width:100%">
-        <button class="btn btn-ok" data-act="approve" data-id="${esc(r.id)}">✓ Verify & credit</button>
-        <button class="btn btn-bad" data-act="reject" data-id="${esc(r.id)}">✕ Reject</button>
-      </div>` : "";
-    const extra = [
-      r.processedBy ? `By ${esc(r.processedBy)} • ${esc(fmtDate(r.processedAt))}` : "",
-      r.rejectReason ? `Reason: ${esc(r.rejectReason)}` : ""
-    ].filter(Boolean).join("<br>");
-    return `
-      <div class="row-item" style="cursor:default">
-        ${avatar(r.name)}
-        <div class="grow"><div class="strong">${esc(r.name)} <span class="meta" style="margin-left:6px">${esc(r.antruId)}</span></div>
-          <div class="meta">${esc(r.id)} • ${esc(fmtDate(r.createdAt))}</div>
-          ${extra ? `<div class="meta">${extra}</div>` : ""}
-        </div>
-        <div style="text-align:right"><div class="amt">${fmt(r.amount)} §</div><div style="margin-top:6px">${badge(r.status)}</div></div>
-        ${acts}
-      </div>`;
-  }
-
-  function renderRequests() {
-    const q = $("reqSearch").value.trim().toLowerCase();
-    const list = requests.filter(r =>
-      (reqFilter === "All" || r.status === reqFilter) &&
-      (!q || [r.name, r.antruId, r.id].some(v => String(v || "").toLowerCase().includes(q))));
-    $("reqList").innerHTML = list.length ? list.map(r => reqRow(r)).join("") : '<div class="empty">Is filter mein koi request nahi.</div>';
-  }
-  $("reqSeg").addEventListener("click", e => {
-    const b = e.target.closest("button[data-f]"); if (!b) return;
-    reqFilter = b.dataset.f;
-    document.querySelectorAll("#reqSeg button").forEach(x => x.classList.toggle("on", x === b));
-    renderRequests();
-  });
-  $("reqSearch").addEventListener("input", renderRequests);
-
-  function handleReqAction(e) {
-    const b = e.target.closest("button[data-act]"); if (!b) return;
-    const r = requests.find(x => x.id === b.dataset.id); if (!r) return;
-    if (b.dataset.act === "approve") approve(r);
-    if (b.dataset.act === "reject") reject(r);
-  }
-  $("reqList").addEventListener("click", handleReqAction);
-  $("ovPending").addEventListener("click", handleReqAction);
-
-  async function approve(r) {
-    if (!confirm(`${fmt(r.amount)} § ${r.antruId} ko credit karein?\n\nPushti karein ki payment aapke UPI/bank mein aa gaya hai.`)) return;
+    if (creatingProfile) return;
+    $("authGate").classList.remove("hide");
     try {
-      await withTimeout(runTransaction(db, async tx => {
-        const rref = doc(db, "rechargeRequests", r.id);
-        const snap = await tx.get(rref);
-        if (!snap.exists() || snap.data().status !== "Pending") throw new Error("Ye request ab Pending nahi hai.");
-        const d = snap.data();
-        const uref = doc(db, "users", d.uid);
-        const u = await tx.get(uref);
-        if (!u.exists()) throw new Error("User profile nahi mila.");
-        tx.update(rref, { status: "Approved", processedBy: me, processedAt: serverTimestamp() });
-        tx.update(uref, { balance: (u.data().balance || 0) + d.amount });
-        tx.set(doc(collection(db, "transactions")), { uid: d.uid, title: "Recharge approved " + r.id, amount: d.amount, createdAt: serverTimestamp() });
-        tx.set(doc(collection(db, "adminActions")), { type: "approve_recharge", requestId: r.id, targetUid: d.uid, amount: d.amount, by: me, createdAt: serverTimestamp() });
-      }));
-      toast(fmt(r.amount) + " § credit ho gaye.");
-    } catch (e) { toast(friendly(e), "err"); }
-  }
-
-  async function reject(r) {
-    const reason = await askReason("Reject karne ka reason");
-    if (!reason) return;
-    try {
-      await withTimeout(runTransaction(db, async tx => {
-        const rref = doc(db, "rechargeRequests", r.id);
-        const snap = await tx.get(rref);
-        if (!snap.exists() || snap.data().status !== "Pending") throw new Error("Ye request ab Pending nahi hai.");
-        tx.update(rref, { status: "Rejected", rejectReason: reason, processedBy: me, processedAt: serverTimestamp() });
-        tx.set(doc(collection(db, "adminActions")), { type: "reject_recharge", requestId: r.id, targetUid: snap.data().uid, amount: snap.data().amount, reason, by: me, createdAt: serverTimestamp() });
-      }));
-      toast("Request reject ho gayi.");
-    } catch (e) { toast(friendly(e), "err"); }
-  }
-
-  $("csvBtn").addEventListener("click", () => {
-    const list = requests.filter(r => reqFilter === "All" || r.status === reqFilter);
-    const rows = [["RequestID", "Name", "AntruID", "Amount", "Status", "CreatedAt", "ProcessedBy", "RejectReason"]]
-      .concat(list.map(r => [r.id, r.name, r.antruId, r.amount, r.status, fmtDate(r.createdAt), r.processedBy || "", r.rejectReason || ""]));
-    const csv = rows.map(row => row.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-    a.download = "recharge-requests-" + reqFilter.toLowerCase() + ".csv";
-    a.click();
-  });
-
-  // ---------- Reason dialog ----------
-  function askReason(title) {
-    $("reasonTitle").textContent = title;
-    $("reasonText").value = "";
-    $("reasonModal").classList.add("show");
-    setTimeout(() => $("reasonText").focus(), 50);
-    return new Promise(res => { reasonResolve = res; });
-  }
-  function closeModal(id) { $(id).classList.remove("show"); }
-  document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => {
-    closeModal(b.dataset.close);
-    if (b.dataset.close === "reasonModal") { reasonResolve?.(null); reasonResolve = null; }
-  }));
-  $("reasonOk").addEventListener("click", () => {
-    const v = $("reasonText").value.trim();
-    if (!v) return toast("Reason likhna zaroori hai.", "err");
-    closeModal("reasonModal");
-    reasonResolve?.(v); reasonResolve = null;
-  });
-
-  // ---------- Users ----------
-  const isFrozen = u => u.status === "frozen";
-  function renderUsers() {
-    const q = $("userSearch").value.trim().toLowerCase();
-    const list = users.filter(u =>
-      (userFilter === "all" || (userFilter === "frozen" ? isFrozen(u) : !isFrozen(u))) &&
-      (!q || [u.name, u.email, u.antruId].some(v => String(v || "").toLowerCase().includes(q))));
-    $("userList").innerHTML = list.length ? list.map(u => `
-      <div class="row-item" data-uid="${esc(u.uid)}">
-        ${avatar(u.name)}
-        <div class="grow"><div class="strong">${esc(u.name)}</div><div class="meta">${esc(u.antruId)} • ${esc(u.email)}</div></div>
-        <div style="text-align:right"><div class="amt">${fmt(u.balance)} §</div><div style="margin-top:6px">${badge(isFrozen(u) ? "frozen" : "active")}</div></div>
-      </div>`).join("") : '<div class="empty">Koi user nahi mila.</div>';
-  }
-  $("userSeg").addEventListener("click", e => {
-    const b = e.target.closest("button[data-f]"); if (!b) return;
-    userFilter = b.dataset.f;
-    document.querySelectorAll("#userSeg button").forEach(x => x.classList.toggle("on", x === b));
-    renderUsers();
-  });
-  $("userSearch").addEventListener("input", renderUsers);
-  $("userList").addEventListener("click", e => {
-    const el = e.target.closest("[data-uid]"); if (el) openUser(el.dataset.uid);
-  });
-
-  function refreshUserModalHead() {
-    const u = users.find(x => x.uid === currentUid);
-    if (!u || !$("userModal").classList.contains("show")) return;
-    renderUserHead(u);
-  }
-  function renderUserHead(u) {
-    $("uTitle").textContent = u.name || "User";
-    $("uHead").innerHTML = `<div class="meta">${esc(u.antruId)} • ${esc(u.email)}</div><div class="meta">Joined ${esc(fmtDate(u.createdAt))}</div>
-      <div style="margin-top:10px">${badge(isFrozen(u) ? "frozen" : "active")}</div>`;
-    $("uStats").innerHTML = `
-      <div><small>Balance</small><b>${fmt(u.balance)} §</b></div>
-      <div><small>Status</small><b>${isFrozen(u) ? "Frozen" : "Active"}</b></div>
-      <div><small>Antru ID</small><b style="font-size:12px">${esc(u.antruId)}</b></div>`;
-    $("uQuick").innerHTML = `
-      ${isFrozen(u)
-        ? `<button class="btn btn-ok" data-quick="unfreeze">Unfreeze account</button>`
-        : `<button class="btn btn-bad" data-quick="freeze">Freeze account</button>`}
-      <button class="btn btn-ghost" data-quick="reset">Send password reset</button>`;
-  }
-
-  async function openUser(uid) {
-    const u = users.find(x => x.uid === uid); if (!u) return;
-    currentUid = uid;
-    renderUserHead(u);
-    $("uAmount").value = ""; $("uReason").value = ""; $("uType").value = "credit";
-    $("userModal").classList.add("show");
-    $("uTx").innerHTML = '<div class="empty">Loading…</div>';
-    try {
-      const s = await withTimeout(getDocs(query(collection(db, "transactions"), where("uid", "==", uid))));
-      const list = s.docs.map(d => d.data()).sort((a, b) => toMs(b.createdAt) - toMs(a.createdAt)).slice(0, 20);
-      $("uTx").innerHTML = list.length ? list.map(txRow).join("") : '<div class="empty">Koi transaction nahi hai.</div>';
-    } catch (e) { $("uTx").innerHTML = `<div class="empty">${esc(friendly(e))}</div>`; }
-  }
-
-  $("uQuick").addEventListener("click", async e => {
-    const b = e.target.closest("button[data-quick]"); if (!b || !currentUid) return;
-    const u = users.find(x => x.uid === currentUid); if (!u) return;
-    if (b.dataset.quick === "reset") {
-      try { await withTimeout(sendPasswordResetEmail(auth, u.email)); await logAction({ type: "password_reset_sent", targetUid: currentUid, by: me }); toast("Reset link " + u.email + " par bhej diya."); }
-      catch (err) { toast(friendly(err), "err"); }
-      return;
+      const snap = await withTimeout(getDoc(doc(db, "users", u.uid)));
+      if (!snap.exists()) {
+        $("nameEmail").textContent = "Logged in as: " + (u.email || "");
+        showAuthForm("name");
+        return;
+      }
+      profile = snap.data();
+      await enterWallet();
+    } catch (e) {
+      showAuthForm("login");
+      showMsg(friendlyError(e));
     }
-    const freeze = b.dataset.quick === "freeze";
-    const reason = await askReason(freeze ? "Account freeze karne ka reason" : "Account unfreeze karne ka reason");
-    if (!reason) return;
-    try {
-      await withTimeout(runTransaction(db, async tx => {
-        const uref = doc(db, "users", currentUid);
-        const snap = await tx.get(uref);
-        if (!snap.exists()) throw new Error("User profile nahi mila.");
-        tx.update(uref, { status: freeze ? "frozen" : "active" });
-        tx.set(doc(collection(db, "adminActions")), { type: freeze ? "freeze_user" : "unfreeze_user", targetUid: currentUid, reason, by: me, createdAt: serverTimestamp() });
-      }));
-      toast(freeze ? "Account freeze ho gaya." : "Account unfreeze ho gaya.");
-    } catch (err) { toast(friendly(err), "err"); }
   });
 
-  $("uApply").addEventListener("click", async () => {
-    if (!currentUid) return;
-    const amount = Number($("uAmount").value);
-    const reason = $("uReason").value.trim();
-    const type = $("uType").value;
-    if (!Number.isInteger(amount) || amount < 1) return toast("Valid amount daalein.", "err");
-    if (!reason) return toast("Reason likhna zaroori hai.", "err");
-    const delta = type === "credit" ? amount : -amount;
-    const label = type === "credit" ? "credit" : "debit";
-    if (!confirm(`${label === "credit" ? "Add" : "Remove"} ${fmt(amount)} § ?\nReason: ${reason}`)) return;
-    try {
-      await withTimeout(runTransaction(db, async tx => {
-        const uref = doc(db, "users", currentUid);
-        const u = await tx.get(uref);
-        if (!u.exists()) throw new Error("User profile nahi mila.");
-        const next = (u.data().balance || 0) + delta;
-        if (next < 0) throw new Error("Balance kam hai, debit nahi ho sakta.");
-        tx.update(uref, { balance: next });
-        tx.set(doc(collection(db, "transactions")), { uid: currentUid, title: "Admin " + label + ": " + reason, amount: delta, createdAt: serverTimestamp() });
-        tx.set(doc(collection(db, "adminActions")), { type: "manual_" + label, targetUid: currentUid, amount: delta, reason, by: me, createdAt: serverTimestamp() });
-      }));
-      toast("Adjustment ho gaya.");
-      $("uAmount").value = ""; $("uReason").value = "";
-    } catch (e) { toast(friendly(e), "err"); }
-  });
+  // ---------- Wallet ----------
+  let user = null, profile = null, unsubs = [];
+  let txs = [], txFilter = "all";
 
-  async function logAction(entry) {
-    try { await withTimeout(runTransaction(db, async tx => {
-      tx.set(doc(collection(db, "adminActions")), { ...entry, createdAt: serverTimestamp() });
-    })); } catch (e) { /* logging failure should not hide the main result */ }
+  async function enterWallet() {
+    unsubs.forEach(f => f()); unsubs = [];
+    $("authGate").classList.add("hide");
+    $("app").style.display = "block";
+    showMsg("");
+
+    unsubs.push(onSnapshot(doc(db, "users", user.uid), s => {
+      if (!s.exists()) return;
+      profile = s.data();
+      myProfileStatus = profile.status || "active";
+      $("balance").textContent = fmt(profile.balance);
+      $("antruIdText").textContent = profile.antruId;
+      $("greeting").textContent = "Hi, " + profile.name;
+      $("dName").textContent = profile.name;
+      $("dId").textContent = profile.antruId;
+      $("dAvatar").textContent = initials(profile.name);
+      renderBanner();
+    }, () => {}));
+
+    unsubs.push(onSnapshot(query(collection(db, "transactions"), where("uid", "==", user.uid)), s => {
+      txs = s.docs.map(d => d.data()).sort(newestFirst);
+      renderRecent();
+      if ($("historyModal").classList.contains("show")) renderHistory();
+    }, () => {}));
   }
 
-  // ---------- Transactions ----------
-  const nameOf = uid => (users.find(u => u.uid === uid)?.name) || uid?.slice(0, 8) || "—";
   function txRow(t) {
-    return `<div class="row-item" style="cursor:default;padding:12px 6px">
-      <div class="grow"><div class="strong" style="font-size:13px">${esc(t.title)}</div><div class="meta">${esc(nameOf(t.uid))} • ${esc(fmtDate(t.createdAt))}</div></div>
-      <span class="amt ${t.amount >= 0 ? 'plus' : 'minus'}">${t.amount >= 0 ? '+' : ''}${fmt(t.amount)} §</span></div>`;
+    return `<div class="tx">
+      <div style="min-width:0"><div class="tx-title">${esc(t.title)}</div><div class="tx-meta">${esc(fmtDate(t.createdAt))}</div></div>
+      <span class="${t.amount >= 0 ? 'plus' : 'minus'}">${t.amount >= 0 ? '+' : ''}${fmt(t.amount)} §</span></div>`;
   }
-  function renderTx() {
-    const q = $("txSearch").value.trim().toLowerCase();
-    const list = txs.filter(t =>
-      (txFilter === "all" || (txFilter === "credit" ? t.amount >= 0 : t.amount < 0)) &&
-      (!q || [t.title, nameOf(t.uid)].some(v => String(v || "").toLowerCase().includes(q)))).slice(0, 300);
-    $("txList").innerHTML = list.length ? list.map(txRow).join("") : '<div class="empty">Koi transaction nahi.</div>';
+  function renderRecent() {
+    const list = txs.slice(0, 5);
+    $("transactions").innerHTML = list.length ? list.map(txRow).join("") : '<div class="empty">Abhi koi transaction nahi hai.</div>';
+  }
+  function renderHistory() {
+    const list = txs.filter(t => txFilter === "all" || (txFilter === "credit" ? t.amount >= 0 : t.amount < 0));
+    $("historyList").innerHTML = list.length ? list.map(txRow).join("") : '<div class="empty">Koi transaction nahi.</div>';
   }
   $("txSeg").addEventListener("click", e => {
     const b = e.target.closest("button[data-f]"); if (!b) return;
     txFilter = b.dataset.f;
     document.querySelectorAll("#txSeg button").forEach(x => x.classList.toggle("on", x === b));
-    renderTx();
+    renderHistory();
   });
-  $("txSearch").addEventListener("input", renderTx);
+  $("btnHistory").onclick = () => { renderHistory(); openModal("historyModal"); };
+  $("seeAll").onclick = () => { renderHistory(); openModal("historyModal"); };
 
-  // ---------- App control ----------
-  let settingsDirty = false;
-  const SETTING_INPUTS = ["sUpi", "sPayee", "sMin", "sMax", "sMaintTitle", "sMaintMsg", "sAnn", "sSignups", "sRecharge", "sTransfers", "sMaint"];
-  function showMaintenanceFields() {
-    const on = $("sMaint").checked;
-    $("maintenanceFields").hidden = !on;
-    $("maintenanceOffHint").style.display = on ? "none" : "block";
-  }
-  function fillSettings() {
-    if (settingsDirty) return; // keep the current admin draft intact until Save
-    const c = config;
-    $("sUpi").value = c.upiId ?? "prince1538@axl";
-    $("sPayee").value = c.payeeName ?? "prince1538@axl";
-    $("sMin").value = c.minRecharge ?? 10;
-    $("sMax").value = c.maxRecharge ?? 100000;
-    $("sMaintTitle").value = c.maintenanceTitle ?? "We’ll be back soon";
-    $("sMaintMsg").value = c.maintenanceMessage ?? "";
-    $("sAnn").value = c.announcement ?? "";
-    $("sSignups").checked = c.signupsEnabled !== false;
-    $("sRecharge").checked = c.rechargeEnabled !== false;
-    $("sTransfers").checked = c.transfersEnabled !== false;
-    $("sMaint").checked = c.maintenanceMode === true;
-    showMaintenanceFields();
-  }
-  SETTING_INPUTS.forEach(id => {
-    $(id).addEventListener("input", () => { settingsDirty = true; if (id === "sMaint") showMaintenanceFields(); });
-    $(id).addEventListener("change", () => { settingsDirty = true; if (id === "sMaint") showMaintenanceFields(); });
-  });
-  function renderMode() {
-    const on = config.maintenanceMode === true;
-    $("modePill").textContent = on ? "Maintenance ON" : "Live";
-    $("modePill").style.color = on ? "#fde68a" : "";
-  }
-  $("saveSettings").addEventListener("click", async () => {
-    const upiId = $("sUpi").value.trim();
-    const min = Number($("sMin").value), max = Number($("sMax").value);
-    if (!/^[\w.\-]{2,}@[\w]{2,}$/.test(upiId)) return toast("UPI ID sahi format mein daalein (name@bank).", "err");
-    if (!Number.isInteger(min) || min < 1) return toast("Min recharge 1 ya usse zyada hona chahiye.", "err");
-    if (!Number.isInteger(max) || max < min) return toast("Max recharge min se bada hona chahiye.", "err");
-    const maintenanceMode = $("sMaint").checked;
-    const data = {
-      upiId, payeeName: $("sPayee").value.trim() || upiId,
-      minRecharge: min, maxRecharge: max,
-      signupsEnabled: $("sSignups").checked, rechargeEnabled: $("sRecharge").checked, transfersEnabled: $("sTransfers").checked,
-      maintenanceMode,
-      maintenanceTitle: $("sMaintTitle").value.trim() || "We’ll be back soon",
-      maintenanceMessage: $("sMaintMsg").value.trim(),
-      announcement: $("sAnn").value.trim(),
-      updatedBy: me, updatedAt: serverTimestamp()
-    };
-    $("saveSettings").disabled = true;
-    try {
-      await withTimeout(setDoc(doc(db, "appConfig", "main"), data, { merge: true }));
-      settingsDirty = false; config = { ...config, ...data };
-      fillSettings(); renderMode();
-      await logAction({ type: "settings_update", by: me, reason: "Settings saved: maintenance " + (data.maintenanceMode ? "ON" : "OFF") + ", feature switches updated" });
-      toast("Settings save ho gayi. Wallet app ko appConfig/main se ye values read karni hongi.");
-    } catch (e) { toast(friendly(e), "err"); }
-    finally { $("saveSettings").disabled = false; }
-  });
+  // ---------- Admin controls (appConfig/main + own status) ----------
+  let appSettings = {}, myProfileStatus = "active";
 
-  // ---------- Full About editor ----------
-  let aboutSectionsDraft = [], aboutDirty = false;
-  const ABOUT_INPUTS = ["aboutTitle", "aboutSubtitle", "aboutText", "aboutImageUrl", "aboutButtonText", "aboutButtonUrl"];
-  function fillAbout() {
-    if (aboutDirty) return;
-    const c = config.about || {};
-    $("aboutTitle").value = c.title ?? config.aboutTitle ?? "About Antru";
-    $("aboutSubtitle").value = c.subtitle ?? config.aboutSubtitle ?? "";
-    $("aboutText").value = c.text ?? config.aboutText ?? "";
-    $("aboutImageUrl").value = c.imageUrl ?? config.aboutImageUrl ?? "";
-    $("aboutButtonText").value = c.buttonText ?? config.aboutButtonText ?? "";
-    $("aboutButtonUrl").value = c.buttonUrl ?? config.aboutButtonUrl ?? "";
-    const sections = c.sections ?? config.aboutSections ?? [];
-    aboutSectionsDraft = Array.isArray(sections) ? sections.map(x => ({ title: x.title || "", text: x.text || x.description || "", linkLabel: x.linkLabel || "", linkUrl: x.linkUrl || "" })) : [];
-    renderAboutSections();
-  }
-  ABOUT_INPUTS.forEach(id => $(id).addEventListener("input", () => { aboutDirty = true; }));
-  function renderAboutSections() {
-    $("aboutSectionsEditor").innerHTML = aboutSectionsDraft.length ? aboutSectionsDraft.map((item, index) => `
-      <div class="about-section-editor" data-about-index="${index}">
-        <div class="about-section-editor-head"><b>Section ${index + 1}</b><button class="btn btn-bad" data-about-remove="${index}" type="button">Remove</button></div>
-        <input class="field" data-about-field="title" value="${esc(item.title)}" maxlength="100" placeholder="Section heading" aria-label="Section ${index + 1} heading">
-        <textarea class="field" data-about-field="text" rows="3" maxlength="2500" placeholder="Section description">${esc(item.text)}</textarea>
-        <div class="grid-2b" style="gap:10px"><input class="field" data-about-field="linkLabel" value="${esc(item.linkLabel)}" maxlength="60" placeholder="Link / button label"><input class="field" data-about-field="linkUrl" value="${esc(item.linkUrl)}" placeholder="https://..." aria-label="Section link URL"></div>
-      </div>`).join("") : '<div class="empty">Abhi koi custom section nahi hai.</div>';
-  }
-  $("addAboutSection").addEventListener("click", () => {
-    aboutSectionsDraft.push({ title: "", text: "", linkLabel: "", linkUrl: "" });
-    aboutDirty = true; renderAboutSections();
-    const last = $("aboutSectionsEditor").lastElementChild;
-    last?.querySelector('[data-about-field="title"]')?.focus();
-  });
-  $("aboutSectionsEditor").addEventListener("input", e => {
-    const field = e.target.dataset.aboutField;
-    const wrap = e.target.closest("[data-about-index]");
-    if (!field || !wrap) return;
-    const index = Number(wrap.dataset.aboutIndex);
-    if (!aboutSectionsDraft[index]) return;
-    aboutSectionsDraft[index][field] = e.target.value; aboutDirty = true;
-  });
-  $("aboutSectionsEditor").addEventListener("click", e => {
-    const b = e.target.closest("[data-about-remove]"); if (!b) return;
-    aboutSectionsDraft.splice(Number(b.dataset.aboutRemove), 1); aboutDirty = true; renderAboutSections();
-  });
-  $("saveAbout").addEventListener("click", async () => {
-    const imageUrl = $("aboutImageUrl").value.trim();
-    const buttonUrl = $("aboutButtonUrl").value.trim();
-    if (imageUrl && !/^https:\/\//i.test(imageUrl)) return toast("About image URL https:// se shuru hona chahiye.", "err");
-    if (buttonUrl && !/^https?:\/\//i.test(buttonUrl)) return toast("About button URL https:// se shuru hona chahiye.", "err");
-    for (const section of aboutSectionsDraft) if (section.linkUrl && !/^https?:\/\//i.test(section.linkUrl)) return toast("Har section ka link https:// se shuru hona chahiye.", "err");
-    const about = {
-      title: $("aboutTitle").value.trim(), subtitle: $("aboutSubtitle").value.trim(), text: $("aboutText").value.trim(),
-      imageUrl, buttonText: $("aboutButtonText").value.trim(), buttonUrl,
-      sections: aboutSectionsDraft.map(x => ({ ...x }))
-    };
-    const data = { about, aboutTitle: about.title, aboutSubtitle: about.subtitle, aboutText: about.text, aboutImageUrl: about.imageUrl, aboutButtonText: about.buttonText, aboutButtonUrl: about.buttonUrl, aboutSections: about.sections, updatedBy: me, updatedAt: serverTimestamp() };
-    $("saveAbout").disabled = true;
-    try {
-      await withTimeout(setDoc(doc(db, "appConfig", "main"), data, { merge: true }));
-      config = { ...config, ...data }; aboutDirty = false; fillAbout();
-      await logAction({ type: "about_update", by: me, reason: "About page content updated" });
-      toast("About content save ho gaya. User app ke About page ko bhi appConfig/main read karna hoga.");
-    } catch (e) { toast(friendly(e), "err"); }
-    finally { $("saveAbout").disabled = false; }
-  });
-
-  // ---------- Audit ----------
-  const LABELS = {
-    approve_recharge: "Recharge approved", reject_recharge: "Recharge rejected",
-    manual_credit: "Manual credit", manual_debit: "Manual debit",
-    freeze_user: "Account frozen", unfreeze_user: "Account unfrozen",
-    password_reset_sent: "Password reset sent", settings_update: "Settings updated",
-    ad_created: "Ad created", ad_paused: "Ad paused", ad_activated: "Ad activated", ad_deleted: "Ad deleted", about_update: "About page updated"
-  };
-  function activityRow(a) {
-    const amt = a.amount !== undefined ? `<span class="amt ${a.amount >= 0 ? 'plus' : 'minus'}" style="font-size:14px">${a.amount >= 0 ? '+' : ''}${fmt(a.amount)} §</span>` : "";
-    return `<div class="row-item" style="cursor:default;padding:10px 6px">
-      <div class="grow"><div class="strong" style="font-size:13px">${esc(LABELS[a.type] || a.type)}</div><div class="meta">${esc(a.by)} • ${esc(fmtDate(a.createdAt))}</div></div>${amt}</div>`;
-  }
-  function renderAudit() {
-    $("auditList").innerHTML = actions.length ? actions.map(a => `
-      <div class="row-item" style="cursor:default">
-        <div class="grow"><div class="strong">${esc(LABELS[a.type] || a.type)}</div>
-          <div class="meta">By ${esc(a.by)} • ${esc(fmtDate(a.createdAt))}</div>
-          ${a.targetUid ? `<div class="meta">User: ${esc(nameOf(a.targetUid))}</div>` : ""}
-          ${a.requestId ? `<div class="meta">Request: ${esc(a.requestId)}</div>` : ""}
-          ${a.reason ? `<div class="meta">Reason: ${esc(a.reason)}</div>` : ""}
-        </div>
-        ${a.amount !== undefined ? `<span class="amt ${a.amount >= 0 ? 'plus' : 'minus'}">${a.amount >= 0 ? '+' : ''}${fmt(a.amount)} §</span>` : ""}
-      </div>`).join("") : '<div class="empty">Abhi koi admin action nahi hua.</div>';
+  function blockReason(kind) {
+    if (appSettings.maintenanceMode) return "Wallet maintenance mein hai. Thodi der baad try karein.";
+    if (myProfileStatus === "frozen") return "Aapka account freeze hai. Support se sampark karein.";
+    if (kind === "recharge" && appSettings.rechargeEnabled === false) return "Add coins abhi band hain.";
+    if (kind === "send" && appSettings.transfersEnabled === false) return "Send coins abhi band hain.";
+    return "";
   }
 
-  // ---------- Ads & banners ----------
-  let ads = [], adMode = "upload", adImageData = "", cropSourceImage = null, cropSourceObjectUrl = "";
-
-  function startAds() {
-    unsubs.push(onSnapshot(collection(db, "ads"), s => {
-      ads = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.order || 0) - (b.order || 0));
-      renderAds();
-    }, e => toast(friendly(e), "err")));
-  }
-
-  function adStatus(a) {
-    const now = Date.now();
-    if (!a.active) return ["pending", "Paused"];
-    if (a.startAt && a.startAt > now) return ["info", "Scheduled"];
-    if (a.endAt && a.endAt < now) return ["rejected", "Expired"];
-    return ["active", "Live"];
-  }
-
-  function compressCanvas(canvas) {
-    let q = 0.84, out = canvas.toDataURL("image/jpeg", q);
-    while (out.length > 900000 && q > 0.42) { q -= 0.08; out = canvas.toDataURL("image/jpeg", q); }
-    if (out.length > 900000) throw new Error("Cropped image abhi bhi badi hai. Chhoti image chunein.");
-    return out;
-  }
-  function renderCroppedImage() {
-    if (!cropSourceImage) return "";
-    const width = 960, height = 540;
-    const zoom = Number($("cropZoom").value || 1);
-    const panX = Number($("cropX").value || 0) / 100;
-    const panY = Number($("cropY").value || 0) / 100;
-    const cover = Math.max(width / cropSourceImage.naturalWidth, height / cropSourceImage.naturalHeight) * zoom;
-    const dw = cropSourceImage.naturalWidth * cover, dh = cropSourceImage.naturalHeight * cover;
-    const dx = (width - dw) * (panX + 1) / 2;
-    const dy = (height - dh) * (panY + 1) / 2;
-    const canvas = document.createElement("canvas"); canvas.width = width; canvas.height = height;
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#080910"; ctx.fillRect(0, 0, width, height);
-    ctx.drawImage(cropSourceImage, dx, dy, dw, dh);
-    return compressCanvas(canvas);
-  }
-  function refreshCropPreview() {
-    if (!cropSourceImage) return;
-    try {
-      adImageData = renderCroppedImage();
-      $("adPreview").src = adImageData; $("adPreview").style.display = "block";
-    } catch (e) { toast(e.message, "err"); }
-  }
-  function parseYouTubeId(input) {
-    try {
-      const u = new URL(input);
-      let id = "";
-      if (u.hostname === "youtu.be" || u.hostname.endsWith(".youtu.be")) id = u.pathname.split("/").filter(Boolean)[0] || "";
-      else if (u.hostname.includes("youtube.com")) {
-        if (u.pathname === "/watch") id = u.searchParams.get("v") || "";
-        else if (/^\/(embed|shorts|live)\//.test(u.pathname)) id = u.pathname.split("/").filter(Boolean)[1] || "";
-      }
-      return /^[A-Za-z0-9_-]{11}$/.test(id) ? id : "";
-    } catch { return ""; }
-  }
-  function showAdMode(mode) {
-    adMode = mode;
-    document.querySelectorAll("[data-ad-mode]").forEach(x => x.classList.toggle("on", x.dataset.adMode === mode));
-    $("adUploadBox").style.display = mode === "upload" ? "block" : "none";
-    $("adUrlBox").style.display = mode === "url" ? "block" : "none";
-    $("adYoutubeBox").style.display = mode === "youtube" ? "block" : "none";
-    if (mode !== "youtube") $("adVideoPreview").style.display = "none";
-    if (mode === "youtube") $("adPreview").style.display = "none";
-    else if (mode === "url") $("adPreview").style.display = /^https:\/\//i.test($("adUrl").value.trim()) ? "block" : "none";
-    else if (adImageData) $("adPreview").style.display = "block";
-  }
-  document.querySelectorAll("[data-ad-mode]").forEach(b => b.addEventListener("click", () => showAdMode(b.dataset.adMode)));
-
-  $("adFile").addEventListener("change", e => {
-    const file = e.target.files[0]; if (!file) return;
-    if (!file.type.startsWith("image/")) return toast("Sirf image file chunein.", "err");
-    if (cropSourceObjectUrl) URL.revokeObjectURL(cropSourceObjectUrl);
-    cropSourceObjectUrl = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      cropSourceImage = img;
-      $("cropControls").hidden = false;
-      $("cropZoom").value = 1; $("cropX").value = 0; $("cropY").value = 0;
-      refreshCropPreview();
-    };
-    img.onerror = () => toast("Ye image open nahi ho rahi.", "err");
-    img.src = cropSourceObjectUrl;
-  });
-  ["cropZoom", "cropX", "cropY"].forEach(id => $(id).addEventListener("input", refreshCropPreview));
-  $("resetCrop").addEventListener("click", () => { $("cropZoom").value = 1; $("cropX").value = 0; $("cropY").value = 0; refreshCropPreview(); });
-  $("adUrl").addEventListener("input", () => {
-    const v = $("adUrl").value.trim();
-    if (adMode !== "url") return;
-    $("adPreview").src = v; $("adPreview").style.display = /^https:\/\//i.test(v) ? "block" : "none";
-  });
-  $("adYoutubeUrl").addEventListener("input", () => {
-    const id = parseYouTubeId($("adYoutubeUrl").value.trim());
-    if (id && adMode === "youtube") {
-      $("adVideoPreview").src = "https://www.youtube-nocookie.com/embed/" + id + "?rel=0&playsinline=1";
-      $("adVideoPreview").style.display = "block";
-    } else { $("adVideoPreview").removeAttribute("src"); $("adVideoPreview").style.display = "none"; }
-  });
-
-  function resetAdForm() {
-    $("adTitle").value = ""; $("adLink").value = ""; $("adUrl").value = ""; $("adFile").value = ""; $("adYoutubeUrl").value = "";
-    $("adStart").value = ""; $("adEnd").value = ""; $("adActive").checked = true;
-    adImageData = ""; cropSourceImage = null;
-    if (cropSourceObjectUrl) URL.revokeObjectURL(cropSourceObjectUrl); cropSourceObjectUrl = "";
-    $("cropControls").hidden = true; $("adPreview").removeAttribute("src"); $("adPreview").style.display = "none";
-    $("adVideoPreview").removeAttribute("src"); $("adVideoPreview").style.display = "none";
-    $("adOrder").value = ads.length ? Math.max(...ads.map(a => a.order || 0)) + 1 : 1;
-    showAdMode("upload");
-  }
-
-  $("saveAd").addEventListener("click", async () => {
-    const title = $("adTitle").value.trim();
-    const link = $("adLink").value.trim();
-    const order = Number($("adOrder").value) || 1;
-    const startAt = $("adStart").value ? new Date($("adStart").value).getTime() : null;
-    const endAt = $("adEnd").value ? new Date($("adEnd").value).getTime() : null;
-    if (!title) return toast("Title likhein.", "err");
-    if (link && !/^https?:\/\//i.test(link)) return toast("Link https:// se shuru hona chahiye.", "err");
-    if (startAt && endAt && endAt < startAt) return toast("End date start se pehle nahi ho sakti.", "err");
-    let data;
-    if (adMode === "youtube") {
-      const youtubeUrl = $("adYoutubeUrl").value.trim();
-      const videoId = parseYouTubeId(youtubeUrl);
-      if (!videoId) return toast("Valid YouTube video URL daalein.", "err");
-      data = { type: "youtube", adType: "youtube", youtubeUrl, youtubeVideoId: videoId, embedUrl: "https://www.youtube-nocookie.com/embed/" + videoId + "?rel=0&playsinline=1", imageUrl: "", link: "" };
-    } else {
-      const image = adMode === "upload" ? adImageData : $("adUrl").value.trim();
-      if (!image) return toast(adMode === "upload" ? "Pehle image upload karein." : "Image URL daalein.", "err");
-      if (adMode === "url" && !/^https:\/\//i.test(image)) return toast("Image URL https:// se shuru hona chahiye.", "err");
-      data = { type: "image", adType: "image", imageUrl: image, link };
+  function renderBanner() {
+    const msgs = [];
+    if (appSettings.maintenanceMode) msgs.push(["bad", appSettings.maintenanceMessage || "Wallet maintenance mein hai. Thodi der baad try karein."]);
+    if (myProfileStatus === "frozen") msgs.push(["bad", "Aapka account abhi freeze hai. Add coins aur send coins band hain."]);
+    if (appSettings.announcement) msgs.push(["info", appSettings.announcement]);
+    const html = msgs.map(([kind, text]) => `<div class="notice ${kind}">${esc(text)}</div>`).join("");
+    for (const id of ["globalBanner", "gateBanner"]) {
+      const el = $(id); if (!el) continue;
+      el.innerHTML = html;
+      el.style.display = msgs.length ? "block" : "none";
     }
-    $("saveAd").disabled = true;
-    try {
-      data = { ...data, title: title.slice(0, 80), active: $("adActive").checked, order, startAt, endAt, createdBy: me, createdAt: serverTimestamp() };
-      await withTimeout(addDoc(collection(db, "ads"), data));
-      await logAction({ type: "ad_created", by: me, reason: "Ad: " + data.title + " (" + data.adType + ")" });
-      toast(data.adType === "youtube" ? "Embedded YouTube ad save ho gaya." : "Image ad save ho gaya.");
-      resetAdForm();
-    } catch (e) { toast(friendly(e), "err"); }
-    finally { $("saveAd").disabled = false; }
-  });
-
-  function renderAds() {
-    $("adList").innerHTML = ads.length ? ads.map(a => {
-      const [cls, label] = adStatus(a);
-      const isVideo = a.adType === "youtube" || a.type === "youtube" || !!a.youtubeVideoId || !!a.embedUrl;
-      const media = isVideo
-        ? `<iframe class="video-preview" style="max-width:150px;aspect-ratio:16/9;margin:0;pointer-events:none" src="${esc(a.embedUrl || (a.youtubeVideoId ? "https://www.youtube-nocookie.com/embed/" + a.youtubeVideoId : ""))}" title="YouTube preview" loading="lazy"></iframe>`
-        : `<img src="${esc(a.imageUrl)}" alt="" style="width:120px;height:68px;object-fit:cover;border-radius:12px;border:1px solid var(--line);flex:none" />`;
-      const sched = [a.startAt ? "From " + new Date(a.startAt).toLocaleString("en-IN") : "", a.endAt ? "Till " + new Date(a.endAt).toLocaleString("en-IN") : ""].filter(Boolean).join(" • ");
-      return `<div class="row-item" style="cursor:default">${media}<div class="grow"><div class="strong">${esc(a.title)} <span class="meta">${isVideo ? "• VIDEO" : "• IMAGE"}</span></div><div class="meta">Order ${esc(a.order ?? 1)}${a.link ? " • " + esc(a.link) : ""}</div>${sched ? `<div class="meta">${esc(sched)}</div>` : ""}</div><span class="badge b-${cls}">${label}</span><div class="actions" style="margin-top:0"><button class="btn btn-ghost" data-ad="toggle" data-id="${esc(a.id)}">${a.active ? "Pause" : "Activate"}</button><button class="btn btn-bad" data-ad="delete" data-id="${esc(a.id)}">Delete</button></div></div>`;
-    }).join("") : '<div class="empty">Abhi koi ad nahi hai.</div>';
-    if (!$("adOrder").value) resetAdForm();
+    const canRecharge = !blockReason("recharge"), canSend = !blockReason("send");
+    $("btnAdd").disabled = !canRecharge; $("genBtn").disabled = !canRecharge;
+    $("btnScan").disabled = !canSend; $("sendBtn").disabled = !canSend;
   }
-  $("adList").addEventListener("click", async e => {
-    const b = e.target.closest("button[data-ad]"); if (!b) return;
-    const ad = ads.find(x => x.id === b.dataset.id); if (!ad) return;
+
+  function applyConfig(c) {
+    appSettings = c || {};
+    if (appSettings.upiId) CONFIG.upiId = appSettings.upiId;
+    if (appSettings.payeeName) CONFIG.payeeName = appSettings.payeeName;
+    renderBanner();
+  }
+  function renderAbout(c) {
+    const a=c?.about||{}, title=a.title??c?.aboutTitle, subtitle=a.subtitle??c?.aboutSubtitle, body=a.text??c?.aboutText;
+    const image=a.imageUrl??c?.aboutImageUrl, buttonText=a.buttonText??c?.aboutButtonText, buttonUrl=a.buttonUrl??c?.aboutButtonUrl, sections=a.sections??c?.aboutSections??[];
+    const validUrl=v=>/^https?:\/\//i.test(String(v||""));
+    let html=`<div class="brand" style="margin-top:12px"><div class="logo">§</div><span>ANTRU <span style="color:#b9a4ff">WALLET</span></span></div>`;
+    if(image&&validUrl(image))html+=`<img src="${esc(image)}" alt="About Antru" style="width:100%;max-height:190px;object-fit:cover;border-radius:16px;margin-top:14px">`;
+    if(title)html+=`<h3 style="margin:16px 0 5px">${esc(title)}</h3>`;
+    if(subtitle)html+=`<p class="muted" style="font-size:13px">${esc(subtitle)}</p>`;
+    if(body)html+=`<p class="muted" style="font-size:13px;white-space:pre-wrap">${esc(body)}</p>`;
+    if(Array.isArray(sections))sections.forEach(x=>{if(x.title)html+=`<h3 style="margin:15px 0 5px">${esc(x.title)}</h3>`;if(x.text||x.description)html+=`<p class="muted" style="font-size:13px;white-space:pre-wrap">${esc(x.text||x.description)}</p>`;if(x.linkLabel&&validUrl(x.linkUrl))html+=`<a class="btn btn-ghost" style="margin-top:8px;text-decoration:none" href="${esc(x.linkUrl)}" target="_blank" rel="noopener noreferrer">${esc(x.linkLabel)}</a>`;});
+    if(buttonText&&validUrl(buttonUrl))html+=`<a class="btn btn-pri" style="margin-top:12px;text-decoration:none" href="${esc(buttonUrl)}" target="_blank" rel="noopener noreferrer">${esc(buttonText)}</a>`;
+    if(!title&&!subtitle&&!body&&!image&&!sections.length)html+=`<p class="muted" style="font-size:13px">Antru Wallet se apne doston aur community ke saath coins ka lena-dena aasan hai. Version 1.0</p>`;
+    html+=`<p class="muted" style="font-size:12px;margin-top:18px">Made with love ❤️ for you</p>`; $("aboutDynamic").innerHTML=html;
+  }
+  onSnapshot(doc(db, "appConfig", "main"), s => { const c=s.exists()?s.data():{}; applyConfig(c); renderAbout(c); }, () => {});
+
+  // ---------- Ads: image + YouTube, manual swipe + automatic slide ----------
+  let adsList = [], adIndex = 0, adTimer = null, adStartX = 0, adDragging = false;
+  function isLiveAd(a) {
+    const now = Date.now();
+    const video = a.adType === "youtube" || a.type === "youtube" || !!a.youtubeVideoId || !!a.embedUrl;
+    if (a.active === false || (!video && !a.imageUrl)) return false;
+    if (a.startAt && a.startAt > now) return false;
+    if (a.endAt && a.endAt < now) return false;
+    return true;
+  }
+  const safeLink = l => !!l && /^https?:\/\//i.test(l);
+  function videoId(a) {
+    if (/^[A-Za-z0-9_-]{11}$/.test(a.youtubeVideoId || "")) return a.youtubeVideoId;
+    const m = String(a.youtubeUrl || a.embedUrl || "").match(/(?:embed\/|youtu\.be\/|v=|shorts\/|live\/)([A-Za-z0-9_-]{11})/);
+    return m ? m[1] : "";
+  }
+  function trackClick(id) { updateDoc(doc(db, "ads", id), { clicks: increment(1) }).catch(() => {}); }
+  function showAd(i) {
+    if (!adsList.length) return;
+    adIndex = (i + adsList.length) % adsList.length;
+    $("adsTrack").style.transform = `translateX(-${adIndex * 100}%)`;
+    document.querySelectorAll("#adsDots span").forEach((d,n) => { d.style.background = n === adIndex ? "#fff" : "#ffffff55"; });
+    document.querySelectorAll("#adsTrack iframe[data-src]").forEach((frame,n) => {
+      if(n===adIndex){if(!frame.getAttribute("src"))frame.setAttribute("src",frame.dataset.src);}
+      else if(frame.getAttribute("src"))frame.removeAttribute("src");
+    });
+  }
+  function startAdTimer() { clearInterval(adTimer); if (adsList.length > 1) adTimer = setInterval(() => showAd(adIndex + 1), 6000); }
+  function renderAds() {
+    clearInterval(adTimer);
+    if (!adsList.length) { $("adsBox").style.display = "none"; return; }
+    $("adsBox").style.display = "block";
+    $("adsTrack").innerHTML = adsList.map(a => {
+      const video = a.adType === "youtube" || a.type === "youtube" || !!a.youtubeVideoId || !!a.embedUrl;
+      let media;
+      if (video) {
+        const id = videoId(a);
+        media = id ? `<iframe data-src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&playsinline=1&rel=0&controls=1" title="${esc(a.title || "YouTube ad")}" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe>` : `<div class="empty">YouTube URL invalid hai.</div>`;
+      } else media = `<img src="${esc(a.imageUrl)}" alt="${esc(a.title || "Ad")}" loading="lazy">`;
+      const content = `<div class="ads-slide">${media}</div>`;
+      return safeLink(a.link) && !video ? `<div class="ads-slide"><a href="${esc(a.link)}" target="_blank" rel="noopener noreferrer" data-ad-id="${esc(a.id)}"><img src="${esc(a.imageUrl)}" alt="${esc(a.title || "Ad")}" loading="lazy"></a></div>` : content;
+    }).join("");
+    $("adsDots").innerHTML = adsList.length > 1 ? adsList.map((_,i) => `<span data-dot="${i}"></span>`).join("") : "";
+    if (adIndex >= adsList.length) adIndex = 0;
+    showAd(adIndex); startAdTimer();
+  }
+  $("adsTrack").addEventListener("click", e => { const l=e.target.closest("a[data-ad-id]"); if(l) trackClick(l.dataset.adId); });
+  $("adsDots").addEventListener("click", e => { const d=e.target.closest("[data-dot]"); if(d){showAd(Number(d.dataset.dot));startAdTimer();} });
+  $("adsBox").addEventListener("pointerdown", e => { adDragging=true; adStartX=e.clientX; });
+  $("adsBox").addEventListener("pointerup", e => { if(!adDragging)return; adDragging=false; const dx=e.clientX-adStartX; if(Math.abs(dx)>45 && adsList.length>1){showAd(adIndex+(dx<0?1:-1));startAdTimer();} });
+  $("adsBox").addEventListener("pointercancel", () => { adDragging=false; });
+  function renderOffers() {
+    $("offersList").innerHTML = adsList.length ? adsList.map(a => {
+      const video=a.adType === "youtube" || a.type === "youtube" || !!a.youtubeVideoId || !!a.embedUrl, id=videoId(a);
+      const media=video && id ? `<iframe src="https://www.youtube-nocookie.com/embed/${id}?playsinline=1&rel=0" title="${esc(a.title||"Offer")}" loading="lazy" allowfullscreen style="width:100%;aspect-ratio:16/9;border:0"></iframe>` : (!video ? `<img src="${esc(a.imageUrl)}" alt="${esc(a.title||"Offer")}">` : "");
+      const inner=`${media}<div>${esc(a.title||"Offer")}</div>`;
+      return safeLink(a.link) && !video ? `<a class="offer" href="${esc(a.link)}" target="_blank" rel="noopener noreferrer" data-ad-id="${esc(a.id)}">${inner}</a>` : `<div class="offer">${inner}</div>`;
+    }).join("") : '<div class="empty">Abhi koi offer nahi hai.</div>';
+  }
+  $("offersList").addEventListener("click", e => { const l=e.target.closest("a[data-ad-id]"); if(l) trackClick(l.dataset.adId); });
+  onSnapshot(collection(db, "ads"), s => {
+    adsList=s.docs.map(d=>({id:d.id,...d.data()})).filter(isLiveAd).sort((a,b)=>(a.order||0)-(b.order||0));
+    renderAds(); if($("offersModal").classList.contains("show")) renderOffers();
+  }, () => {});
+
+  // ---------- Recharge ----------
+  document.querySelectorAll("[data-amt]").forEach(b => b.addEventListener("click", () => { $("coinAmount").value = b.dataset.amt; }));
+
+  $("btnAdd").onclick = () => {
+    $("paymentResult").style.display = "none";
+    $("coinAmount").value = "";
+    openModal("addModal");
+  };
+
+  $("genBtn").onclick = async () => {
+    const amount = Number($("coinAmount").value);
+    const rReason = blockReason("recharge");
+    if (rReason) return toast(rReason, "err");
+    const minR = appSettings.minRecharge || 1, maxR = appSettings.maxRecharge || 100000;
+    if (!Number.isInteger(amount) || amount < minR || amount > maxR) return toast(`Amount ${fmt(minR)} aur ${fmt(maxR)} § ke beech hona chahiye.`, "err");
+    const id = "ANR" + Date.now().toString().slice(-9);
     try {
-      if (b.dataset.ad === "toggle") {
-        await withTimeout(updateDoc(doc(db, "ads", ad.id), { active: !ad.active }));
-        await logAction({ type: ad.active ? "ad_paused" : "ad_activated", by: me, reason: "Ad: " + ad.title });
-      } else {
-        if (!confirm("Ye ad delete karein? Ye wapas nahi aayega.")) return;
-        await withTimeout(deleteDoc(doc(db, "ads", ad.id)));
-        await logAction({ type: "ad_deleted", by: me, reason: "Ad: " + ad.title });
-        toast("Ad delete ho gaya.");
+      await withTimeout(setDoc(doc(db, "rechargeRequests", id), {
+        uid: user.uid, antruId: profile.antruId, name: profile.name, amount, status: "Pending", createdAt: serverTimestamp()
+      }));
+    } catch (e) { return toast("Request save nahi ho paayi: " + friendlyError(e), "err"); }
+    const upi = `upi://pay?pa=${encodeURIComponent(CONFIG.upiId)}&pn=${encodeURIComponent(CONFIG.payeeName)}&am=${amount}&cu=${CONFIG.currency}&tn=${encodeURIComponent("Antru recharge " + id)}`;
+    $("paymentQR").innerHTML = "";
+    new QRCode($("paymentQR"), { text: upi, width: 220, height: 220, colorDark: "#111111", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
+    $("payAmount").textContent = "₹" + fmt(amount);
+    $("requestId").textContent = "Request ID: " + id;
+    $("upiLink").href = upi;
+    $("paymentResult").style.display = "block";
+  };
+
+  // ---------- Send coins + QR scanner ----------
+  let scanStream = null, scanRaf = null;
+
+  $("btnScan").onclick = () => {
+    $("sendTo").value = ""; $("sendAmount").value = "";
+    openModal("sendModal");
+  };
+
+  async function startScan() {
+    if (!navigator.mediaDevices?.getUserMedia) return toast("Is browser mein camera support nahi hai. ID type karein.", "err");
+    if (!window.jsQR) return toast("Scanner load nahi hua. Internet check karein.", "err");
+    try {
+      scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+    } catch (e) { return toast("Camera permission nahi mili.", "err"); }
+    const v = $("scanVideo");
+    v.srcObject = scanStream;
+    await v.play().catch(() => {});
+    $("scanBox").style.display = "block";
+    const c = $("scanCanvas"), ctx = c.getContext("2d", { willReadFrequently: true });
+    const tick = () => {
+      if (!scanStream) return;
+      if (v.readyState === v.HAVE_ENOUGH_DATA && v.videoWidth) {
+        c.width = v.videoWidth; c.height = v.videoHeight;
+        ctx.drawImage(v, 0, 0, c.width, c.height);
+        const img = ctx.getImageData(0, 0, c.width, c.height);
+        const code = jsQR(img.data, c.width, c.height, { inversionAttempts: "dontInvert" });
+        if (code && code.data) return handleScan(code.data);
       }
-    } catch (err) { toast(friendly(err), "err"); }
+      scanRaf = requestAnimationFrame(tick);
+    };
+    tick();
+  }
+
+  function stopScan() {
+    cancelAnimationFrame(scanRaf);
+    scanStream?.getTracks().forEach(t => t.stop());
+    scanStream = null;
+    $("scanBox").style.display = "none";
+  }
+
+  function handleScan(text) {
+    stopScan();
+    const m = /^ANTRU_USER:(ANTRU\d+)$/i.exec(String(text).trim());
+    if (!m) return toast("Ye Antru QR nahi hai.", "err");
+    $("sendTo").value = m[1].toUpperCase();
+    toast("ID mil gaya: " + m[1].toUpperCase());
+    verifyRecipient();
+  }
+
+  $("scanStartBtn").addEventListener("click", startScan);
+
+  let verifiedRecipient = null;
+  async function verifyRecipient() {
+    const id=$("sendTo").value.trim().toUpperCase();
+    if(!/^ANTRU\d{6}$/.test(id)) { verifiedRecipient=null; $("recipientPreview").style.display="none"; toast("Sahi Antru ID daalein.","err"); return null; }
+    if(id===profile?.antruId){verifiedRecipient=null;toast("Aap khud ko coins nahi bhej sakte.","err");return null;}
+    $("verifyRecipientBtn").disabled=true;
+    try {
+      const idSnap=await withTimeout(getDoc(doc(db,"antruIds",id)));
+      if(!idSnap.exists()) throw new Error("Ye Antru ID nahi mili.");
+      const idData=idSnap.data(), uSnap=await withTimeout(getDoc(doc(db,"users",idData.uid)));
+      if(!uSnap.exists()) throw new Error("Recipient profile nahi mila.");
+      const u=uSnap.data(); if(u.status==="frozen") throw new Error("Recipient account frozen hai.");
+      verifiedRecipient={uid:idData.uid,antruId:u.antruId||id,name:u.name||idData.name||"Antru User"};
+      $("recipientPreview").innerHTML=`<b>Recipient verified</b><br>${esc(verifiedRecipient.name)}<br><span class="muted">${esc(verifiedRecipient.antruId)}</span>`;
+      $("recipientPreview").style.display="block"; return verifiedRecipient;
+    } catch(e){verifiedRecipient=null;$("recipientPreview").style.display="none";toast(e.message||friendlyError(e),"err");return null;}
+    finally{$("verifyRecipientBtn").disabled=false;}
+  }
+  $("verifyRecipientBtn").addEventListener("click",verifyRecipient);
+  $("sendTo").addEventListener("input",()=>{verifiedRecipient=null;$("recipientPreview").style.display="none";});
+  $("sendBtn").onclick=async()=>{
+    const id=$("sendTo").value.trim().toUpperCase(), amount=Number($("sendAmount").value);
+    if(!Number.isInteger(amount)||amount<1)return toast("Valid amount daalein.","err");
+    const reason=blockReason("send");if(reason)return toast(reason,"err");
+    const recipient=(verifiedRecipient&&verifiedRecipient.antruId===id)?verifiedRecipient:await verifyRecipient();
+    if(!recipient)return;
+    if(!confirm(`${recipient.name} (${recipient.antruId}) ko ${fmt(amount)} § bhejne hain?\n\nCoins abhi aapke balance se minus honge. Admin approval ke baad receiver ko milenge.`))return;
+    const requestId="TR"+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,6).toUpperCase();
+    $("sendBtn").disabled=true;
+    try{
+      await withTimeout(runTransaction(db,async tx=>{
+        const senderRef=doc(db,"users",user.uid), receiverRef=doc(db,"users",recipient.uid), idRef=doc(db,"antruIds",id);
+        const [senderSnap,receiverSnap,idSnap]=await Promise.all([tx.get(senderRef),tx.get(receiverRef),tx.get(idRef)]);
+        if(!senderSnap.exists()||!receiverSnap.exists()||!idSnap.exists()||idSnap.data().uid!==recipient.uid)throw new Error("Recipient details badal gaye. Dobara verify karein.");
+        const sender=senderSnap.data(), receiver=receiverSnap.data();
+        if(sender.status==="frozen"||receiver.status==="frozen")throw new Error("Frozen account transfer nahi kar sakta.");
+        if((sender.balance||0)<amount)throw new Error("Wallet balance kam hai.");
+        tx.update(senderRef,{balance:(sender.balance||0)-amount});
+        const senderTxId=requestId+"_sender";
+        tx.set(doc(db,"transferRequests",requestId),{senderUid:user.uid,senderName:sender.name||profile.name,senderAntruId:sender.antruId||profile.antruId,receiverUid:recipient.uid,receiverName:receiver.name||recipient.name,receiverAntruId:receiver.antruId||id,senderTransactionId:senderTxId,amount,status:"Pending",createdAt:serverTimestamp()});
+        tx.set(doc(db,"transactions",senderTxId),{uid:user.uid,title:`Transfer to ${receiver.name||recipient.name} (${receiver.antruId||id}) — Pending approval`,amount:-amount,transferId:requestId,counterpartyUid:recipient.uid,counterpartyName:receiver.name||recipient.name,counterpartyAntruId:receiver.antruId||id,status:"Pending",createdAt:serverTimestamp()});
+      }));
+      stopScan();closeModal("sendModal");toast(`${fmt(amount)} § ki request admin ko bhej di gayi.`);
+    }catch(e){toast(e.message||friendlyError(e),"err");}
+    finally{$("sendBtn").disabled=false;}
+  };
+
+  // ---------- My QR & share ----------
+  $("btnQR").onclick = () => {
+    if (!profile) return;
+    $("myQR").innerHTML = "";
+    new QRCode($("myQR"), { text: "ANTRU_USER:" + profile.antruId, width: 220, height: 220, colorDark: "#111111", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
+    $("myAntruId").textContent = profile.antruId;
+    openModal("qrModal");
+  };
+
+  const shareText = () => `Mera Antru ID: ${profile.antruId}\nMujhe Antru Wallet par coins bhejein.`;
+
+  async function shareNow(text) {
+    try {
+      if (navigator.share) { await navigator.share({ title: "Antru Wallet", text, url: location.href }); return; }
+      await navigator.clipboard.writeText(text);
+      toast("Copy ho gaya. Ab kahin bhi paste karein.");
+    } catch (e) { if (e.name !== "AbortError") toast("Share nahi ho paaya.", "err"); }
+  }
+
+  function shareOpen() {
+    if (!profile) return;
+    $("shareId").textContent = profile.antruId;
+    openModal("shareModal");
+  }
+  $("shareNowBtn").addEventListener("click", () => shareNow(shareText()));
+  $("qrShareBtn").addEventListener("click", () => shareNow(shareText()));
+  $("copyIdBtn").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(profile.antruId); toast("ID copy ho gaya."); }
+    catch (e) { toast("Copy nahi ho paaya.", "err"); }
+  });
+  $("idChip").addEventListener("click", async () => {
+    if (!profile) return;
+    try { await navigator.clipboard.writeText(profile.antruId); toast("Antru ID copy ho gaya."); }
+    catch (e) { shareOpen(); }
   });
 
-  // ---------- Misc ----------
-  // Close modals on backdrop click
-  ["reasonModal", "userModal"].forEach(id => $(id).addEventListener("click", e => {
-    if (e.target.id === id) { closeModal(id); if (id === "reasonModal") { reasonResolve?.(null); reasonResolve = null; } }
-  }));
-  $("userModal").addEventListener("click", e => { if (e.target.id === "userModal") currentUid = null; });
+  // ---------- Profile ----------
+  function openProfile() {
+    if (!profile) return;
+    $("pEmail").textContent = user.email || "—";
+    $("pId").textContent = profile.antruId;
+    $("pJoined").textContent = fmtDate(profile.createdAt);
+    $("pStatus").innerHTML = myProfileStatus === "frozen" ? '<span class="status">FROZEN</span>' : '<span style="color:var(--green)">Active</span>';
+    $("pName").value = profile.name || "";
+    $("curPass").value = ""; $("newPass").value = ""; $("newPass2").value = "";
+    openModal("profileModal");
+  }
+
+  $("saveProfileBtn").addEventListener("click", async () => {
+    const name = $("pName").value.trim();
+    if (!name) return toast("Naam khali nahi ho sakta.", "err");
+    try {
+      await withTimeout(updateDoc(doc(db, "users", user.uid), { name }));
+      toast("Naam save ho gaya.");
+    } catch (e) { toast(friendlyError(e), "err"); }
+  });
+
+  $("changePassBtn").addEventListener("click", async () => {
+    const cur = $("curPass").value, n1 = $("newPass").value, n2 = $("newPass2").value;
+    if (!cur) return toast("Purana password daalein.", "err");
+    if (n1.length < 6) return toast("Naya password kam se kam 6 characters ka ho.", "err");
+    if (n1 !== n2) return toast("Naye password match nahi ho rahe.", "err");
+    $("changePassBtn").disabled = true;
+    try {
+      await withTimeout(reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, cur)));
+      await withTimeout(updatePassword(user, n1));
+      $("curPass").value = ""; $("newPass").value = ""; $("newPass2").value = "";
+      toast("Password badal gaya.");
+    } catch (e) {
+      const wrong = e.code === "auth/invalid-credential" || e.code === "auth/wrong-password";
+      toast(wrong ? "Purana password galat hai." : friendlyError(e), "err");
+    } finally { $("changePassBtn").disabled = false; }
+  });
+
+  // ---------- Keep my name in sync for the transfer receipt ----------
+  // (name changes are saved on users/{uid}; antruIds keeps the name used at signup)
 </script>
 </body>
 </html>
